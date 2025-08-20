@@ -1,0 +1,193 @@
+openapi: 3.0.3
+info:
+  title: API - Aplicação de Planejamento de Viagens em Grupo
+  description: >
+    Documentação da API para organização colaborativa de viagens em grupo.
+    Contém endpoints para autenticação, gerenciamento de grupos, destinos,
+    votações, despesas e tarefas.
+  version: 1.0.0
+  contact:
+    name: Felipe Lopes Firmino
+    email: felipe@example.com
+servers:
+  - url: http://localhost:8080
+    description: Servidor local
+  - url: https://api.viagens.com
+    description: Servidor de produção
+tags:
+  - name: Autenticação
+    description: Endpoints para login, cadastro e logout
+  - name: Grupos de Viagem
+    description: CRUD de grupos e membros
+  - name: Destinos
+    description: Adição e listagem de destinos
+  - name: Votações
+    description: Criação e participação em votações
+  - name: Despesas
+    description: Registro e rateio de despesas
+  - name: Tarefas
+    description: Checklist de atividades do grupo
+paths:
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Realiza login de um usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: usuario@email.com
+                password:
+                  type: string
+                  example: senha123
+      responses:
+        "200":
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "401":
+          description: Credenciais inválidas
+  /auth/register:
+    post:
+      tags: [Autenticação]
+      summary: Cadastra um novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: João Silva
+                email:
+                  type: string
+                  example: usuario@email.com
+                password:
+                  type: string
+                  example: senha123
+      responses:
+        "201":
+          description: Usuário criado com sucesso
+        "400":
+          description: Erro de validação
+  /groups:
+    post:
+      tags: [Grupos de Viagem]
+      summary: Cria um novo grupo de viagem
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Viagem para Rio de Janeiro
+                start_date:
+                  type: string
+                  format: date
+                  example: 2025-12-10
+                end_date:
+                  type: string
+                  format: date
+                  example: 2025-12-20
+      responses:
+        "201":
+          description: Grupo criado com sucesso
+    get:
+      tags: [Grupos de Viagem]
+      summary: Lista grupos do usuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: integer
+          required: false
+          description: Filtrar por ID do usuário
+      responses:
+        "200":
+          description: Lista de grupos
+  /groups/{id}:
+    get:
+      tags: [Grupos de Viagem]
+      summary: Detalhes de um grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detalhes do grupo
+  /groups/{id}/destinations:
+    post:
+      tags: [Destinos]
+      summary: Adiciona um destino ao grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Cristo Redentor
+                location:
+                  type: string
+                  example: Rio de Janeiro, RJ
+                description:
+                  type: string
+                  example: Ponto turístico famoso com vista panorâmica
+      responses:
+        "201":
+          description: Destino adicionado
+    get:
+      tags: [Destinos]
+      summary: Lista destinos de um grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lista de destinos
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -26,8 +26,8 @@ func createTables(db *sql.DB) {
 
 	_, err := db.Exec(query)
 	if err != nil {
-		panic(fmt.Sprintf("❌ Erro ao criar tabelas: %v", err))
+		panic(fmt.Sprintf("Erro ao criar tabelas: %v", err))
 	}
 
-	fmt.Println("✅ Tabelas garantidas no banco!")
+	fmt.Println("Tabelas garantidas no banco!")
 }
