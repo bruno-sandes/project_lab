@@ -22,11 +22,11 @@ services:
     depends_on:
       - postgres
     environment:
-      DB_HOST: postgres
+      DB_HOST: postgres      # Nome do serviço
       DB_PORT: 5432
-      DB_USER: localhost
-      DB_PASSWORD: bruno123
-      DB_NAME: project_lab
+      DB_USER: admin         # mesmo valor do POSTGRES_USER
+      DB_PASSWORD: admin123  # mesmo valor do POSTGRES_PASSWORD
+      DB_NAME: project_lab   # mesmo valor do POSTGRES_DB
 
   frontend:
     build: ./frontend

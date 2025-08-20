@@ -1,0 +1,20 @@
+# Ignorar dependências locais
+vendor
+bin
+
+# Ignorar configs locais
+*.env
+*.log
+
+# Ignorar cache / temporários
+*.out
+*.exe
+*.tmp
+*.swp
+.DS_Store
+
+# Git e IDE
+.git
+.gitignore
+.vscode
+.idea

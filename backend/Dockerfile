@@ -1,5 +1,5 @@
 # Usar imagem oficial do Go
-FROM golang:1.22-alpine
+FROM golang:1.25-alpine
 
 # Diretório de trabalho no container
 WORKDIR /app
