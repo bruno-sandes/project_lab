@@ -1,0 +1,126 @@
+// Database schema for the Group Trip Planning Application, run this code on DBdiagramIO
+
+// Users Table
+// Stores information about each user.
+Table users {
+  id integer [primary key, increment]
+  name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  password_hash varchar(255) [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Travel Groups Table
+// The main entity for a trip.
+Table travel_groups {
+  id integer [primary key, increment]
+  name varchar(255) [not null]
+  //fk 
+  creator_id integer [not null]
+  start_date date
+  end_date date
+  created_at timestamp
+}
+
+// Group Members Join Table
+// Resolves the many-to-many relationship between users and groups.
+// A user can be in many groups, a group has many users.
+Table group_members {
+  travel_group_id integer [not null]
+  user_id integer [not null]
+  created_at timestamp
+  
+  // Defines a composite primary key
+  primary key (travel_group_id, user_id)
+}
+
+// Destinations Table
+// Stores points of interest for a specific group.
+Table destinations {
+  id integer [primary key, increment]
+  //fk
+  travel_group_id integer [not null]
+  name varchar(255) [not null]
+  location varchar(255)
+  description text
+  created_at timestamp
+}
+
+// Voting Table
+// Stores a poll created within a group.
+Table votings {
+  id integer [primary key, increment]
+  travel_group_id integer [not null]
+  question text [not null]
+  // Options are stored as a text array, but a separate table
+  // might be better for complex cases.
+  options text [note: 'JSON array of options']
+  created_at timestamp
+}
+
+// Votes Table
+// Stores a single vote from a user for a voting.
+Table votes {
+  id integer [primary key, increment]
+  voting_id integer [not null]
+  user_id integer [not null]
+  selected_option varchar(255) [not null]
+  created_at timestamp
+}
+
+// Expenses Table
+// Stores expenses made within a group.
+Table expenses {
+  id integer [primary key, increment]
+  travel_group_id integer [not null]
+  description text
+  amount decimal(10, 2) [not null]
+  payer_id integer [not null]
+  created_at timestamp
+}
+
+// Expense Participants Join Table
+// Resolves the many-to-many relationship for shared expenses.
+Table expense_participants {
+  expense_id integer [not null]
+  user_id integer [not null]
+  
+  primary key (expense_id, user_id)
+}
+
+// Defining the relationships
+// Syntax: Ref: <Table1>.<Column1> [<> or < or >] <Table2>.<Column2>
+
+// A user is the creator of a group.
+Ref: travel_groups.creator_id > users.id
+
+// A user is a member of a group.
+Ref: group_members.user_id > users.id
+
+// A travel group has many members.
+Ref: group_members.travel_group_id > travel_groups.id
+
+// A travel group has many destinations.
+Ref: destinations.travel_group_id > travel_groups.id
+
+// A travel group has many votings.
+Ref: votings.travel_group_id > travel_groups.id
+
+// A voting has many votes.
+Ref: votes.voting_id > votings.id
+
+// A vote belongs to a user.
+Ref: votes.user_id > users.id
+
+// A travel group has many expenses.
+Ref: expenses.travel_group_id > travel_groups.id
+
+// A user pays for an expense.
+Ref: expenses.payer_id > users.id
+
+// An expense has many participants.
+Ref: expense_participants.expense_id > expenses.id
+
+// A participant is a user.
+Ref: expense_participants.user_id > users.id

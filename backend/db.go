@@ -10,12 +10,12 @@ import (
 )
 
 func connectDB() *sql.DB {
-	// Pega configs do docker-compose (com fallback)
-	host := getEnv("DB_HOST", "localhost")
-	port := getEnv("DB_PORT", "5432")
-	user := getEnv("DB_USER", "admin")
-	password := getEnv("DB_PASSWORD", "admin123")
-	dbname := getEnv("DB_NAME", "project_lab")
+	// Pega as variáveis do ambiente (agora carregadas pelo .env)
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
 
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -24,22 +24,13 @@ func connectDB() *sql.DB {
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		log.Fatal("Erro ao abrir conexão com o banco:", err)
+		log.Fatalf("Erro ao abrir conexão com o banco: %v", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		log.Fatal("Banco não respondeu:", err)
+		log.Fatalf("Banco não respondeu: %v", err)
 	}
 
 	fmt.Println("Conexão bem sucedida com o Postgres!")
 	return db
-}
-
-// Função auxiliar
-func getEnv(key, fallback string) string {
-	val := os.Getenv(key)
-	if val == "" {
-		return fallback
-	}
-	return val
 }

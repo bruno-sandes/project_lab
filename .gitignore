@@ -1,0 +1,19 @@
+# Ignorar arquivos de variáveis de ambiente
+.env
+
+# Ignorar executáveis do Go
+*.exe
+*.o
+*.out
+/main
+
+# Ignorar diretórios criados por ferramentas
+/vendor
+/build
+/dist
+
+# Ignorar arquivos de logs
+*.log
+
+# Ignorar binários do Docker
+docker-compose.yml.bak

@@ -4,11 +4,14 @@ import (
 	"errors"
 	"project_lab/internal/models"
 	"project_lab/internal/repositories"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // AuthService é a interface que define a lógica de negócio de autenticação.
 type AuthService interface {
-	Authenticate(email, password string) (*models.User, error)
+	RegisterUser(user *models.User) error
+	Authenticate(email, password string) (string, error)
 }
 
 // authService implementa a interface AuthService.
@@ -23,21 +26,37 @@ func NewAuthService(userRepo repositories.UserRepository) AuthService {
 	}
 }
 
+// RegisterUser lida com a lógica de negócio do cadastro.
+func (s *authService) RegisterUser(user *models.User) error {
+	// 1. Gera o hash da senha
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.New("erro ao gerar hash da senha")
+	}
+	user.PasswordHash = string(hashedPassword)
+
+	// 2. Salva o usuário no banco de dados
+	if err := s.userRepo.CreateUser(user); err != nil {
+		return err // Passa o erro (incluindo o de conflito) para o handler
+	}
+
+	return nil
+}
+
 // Authenticate autentica um usuário.
-func (s *authService) Authenticate(email, password string) (*models.User, error) {
-	// 1. Busca o usuário pelo e-mail na camada de Repositories
+func (s *authService) Authenticate(email, password string) (string, error) {
+	//Busca o usuário pelo e-mail
 	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
-		return nil, errors.New("usuário ou senha incorretos")
+		return "", errors.New("usuário ou senha incorretos")
 	}
 
-	// 2. Compara a senha (aqui você usaria uma biblioteca de hash como bcrypt)
-	// Por enquanto, vamos fazer uma comparação simples para focar na lógica
-	if user.Password != password {
-		return nil, errors.New("usuário ou senha incorretos")
+	//Compara a senha com o hash no banco
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		return "", errors.New("usuário ou senha incorretos")
 	}
 
-	// Lógica de sucesso: aqui você geraria um JWT
-	// Por agora, apenas retornamos o usuário
-	return user, nil
+	// Lógica de sucesso: Gerar e retornar o JWT
+	// Por enquanto, retorna uma string de teste
+	return "token_de_teste", nil
 }
