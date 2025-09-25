@@ -1,0 +1,57 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="header">
+      <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </div>
+      <h1 class="title">EasyTrip</h1>
+      <p class="subtitle">
+        Faça login para planejar sua próxima aventura em grupo.
+      </p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-body">
+        <div class="form-field">
+          <label for="email" class="label">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="input-field"
+            placeholder="seueemail@email.com"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="password" class="label">Senha</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="input-field"
+            placeholder="Sua senha"
+          />
+        </div>
+
+        <button type="submit" class="submit-button">
+          Entrar
+        </button>
+      </div>
+    </form>
+
+    <div class="divider">
+      <p>
+        <span class="divider-text">Ou continue com</span>
+      </p>
+    </div>
+
+    <div class="links">
+      <a href="#">Não tem uma conta? Cadastre-se</a>
+      <a href="#">Esqueceu sua senha?</a>
+    </div>
+  </div>
+</div>
