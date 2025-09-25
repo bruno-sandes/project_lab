@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { LoginService } from '../../service/login-service';
 import { Router } from '@angular/router';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LoginRequest } from '../../model/login.model';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  imports: [ReactiveFormsModule],
+  standalone: true,
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -47,7 +48,6 @@ export class Login {
     this.authService.login(credentials).subscribe({
       next: (response) => {
         this.authService.setToken(response.token);
-        this.router.navigate(['/groups']); 
       },
       error: (err: Error) => {
         this.errorMessage = err.message; 

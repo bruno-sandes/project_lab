@@ -13,8 +13,15 @@
       </p>
     </div>
 
-    <form (ngSubmit)="onSubmit()">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-body">
+        
+        @if (errorMessage) {
+          <div class="validation-error">
+            {{ errorMessage }}
+          </div>
+        }
+
         <div class="form-field">
           <label for="email" class="label">Email</label>
           <input
@@ -23,7 +30,19 @@
             name="email"
             class="input-field"
             placeholder="seueemail@email.com"
+            formControlName="email"
           />
+          
+          @if (email?.invalid && (email?.dirty || email?.touched)) {
+            <div class="validation-error">
+              @if (email?.errors?.['required']) {
+                <span>Email é obrigatório.</span>
+              }
+              @if (email?.errors?.['email']) {
+                <span>Formato de email inválido.</span>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-field">
@@ -34,11 +53,27 @@
             name="password"
             class="input-field"
             placeholder="Sua senha"
+            formControlName="password"
           />
+          
+          @if (password?.invalid && (password?.dirty || password?.touched)) {
+            <div class="validation-error">
+              @if (password?.errors?.['required']) {
+                <span>Senha é obrigatória.</span>
+              }
+              @if (password?.errors?.['minlength']) {
+                <span>Mínimo 6 caracteres.</span>
+              }
+            </div>
+          }
         </div>
 
-        <button type="submit" class="submit-button">
-          Entrar
+        <button type="submit" class="submit-button" [disabled]="loginForm.invalid || isLoading">
+          @if (isLoading) {
+            <span>Entrando...</span>
+          } @else {
+            <span>Entrar</span>
+          }
         </button>
       </div>
     </form>
