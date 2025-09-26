@@ -1,5 +1,3 @@
-// src/app/services/auth.service.ts
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
@@ -7,13 +5,12 @@ import { catchError } from 'rxjs/operators'; // tap foi removido!
 import { LoginRequest, LoginResponse, RegisterRequest } from '../model/login.model';
 import { environment } from '../../../../environments/environment';
 
-/** Chave de armazenamento local para o token */
 const TOKEN_KEY = 'auth_token';
 
 @Injectable({
   providedIn: 'root'
 })
-export class LoginService {
+export class AuthService {
   private http = inject(HttpClient); 
   private apiUrl = `${environment.apiUrl}/auth`;
   

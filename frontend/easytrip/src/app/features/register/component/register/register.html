@@ -9,30 +9,53 @@
       </div>
       <h1 class="title">EasyTrip</h1>
       <p class="subtitle">
-        Faça login para planejar sua próxima aventura em grupo.
+        Comece a planejar sua próxima aventura em grupo.
       </p>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div class="form-body">
         
-        @if (((errorMessage()))) {
+        @if (errorMessage()) {
           <div class="validation-error">
-            {{ ((errorMessage())) }}
+            {{ errorMessage() }}
+          </div>
+        }
+        @if (successMessage()) {
+          <div class="success-message">
+            {{ successMessage() }}
           </div>
         }
 
         <div class="form-field">
-          <label for="email" class="label">Email</label>
+          <label for="name" class="label">Nome Completo</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="input-field"
+            placeholder="Seu nome"
+            formControlName="name"
+          />
+          @if (name?.invalid && (name?.dirty || name?.touched)) {
+            <div class="validation-error">
+              @if (name?.errors?.['required']) {
+                <span>Nome é obrigatório.</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="email" class="label">Endereço de e-mail</label>
           <input
             type="email"
             id="email"
             name="email"
             class="input-field"
-            placeholder="seueemail@email.com"
+            placeholder="voce@exemplo.com"
             formControlName="email"
           />
-          
           @if (email?.invalid && (email?.dirty || email?.touched)) {
             <div class="validation-error">
               @if (email?.errors?.['required']) {
@@ -52,10 +75,9 @@
             id="password"
             name="password"
             class="input-field"
-            placeholder="Sua senha"
+            placeholder="********"
             formControlName="password"
           />
-          
           @if (password?.invalid && (password?.dirty || password?.touched)) {
             <div class="validation-error">
               @if (password?.errors?.['required']) {
@@ -68,25 +90,18 @@
           }
         </div>
 
-        <button type="submit" class="submit-button" [disabled]="loginForm.invalid || isLoading">
-          @if (isLoading()){
-            <span>Entrando...</span>
+        <button type="submit" class="submit-button" [disabled]="registerForm.invalid || isLoading">
+          @if (isLoading()) {
+            <span>Cadastrando...</span>
           } @else {
-            <span>Entrar</span>
+            <span>Cadastrar</span>
           }
         </button>
       </div>
     </form>
-
-    <div class="divider">
-      <p>
-        <span class="divider-text">Ou continue com</span>
-      </p>
-    </div>
-
+    
     <div class="links">
-      <a (click)="navigateToRegister()">Não tem uma conta? Cadastre-se</a>
-      <a href="#">Esqueceu sua senha?</a>
+        <p (click)="navigateToLogin()" > Já tem uma conta? Entrar </p>
     </div>
   </div>
 </div>

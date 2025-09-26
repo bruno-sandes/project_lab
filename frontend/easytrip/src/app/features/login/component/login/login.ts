@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { LoginService } from '../../service/login-service';
-import { Router } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { AuthService } from '../../service/login-service';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LoginRequest } from '../../model/login.model';
+import { NavigateService } from '../../../../shared/services/navigate-service';
 
 @Component({
   selector: 'app-login',
@@ -12,11 +12,11 @@ import { LoginRequest } from '../../model/login.model';
   styleUrl: './login.css'
 })
 export class Login {
- private authService = inject(LoginService);
-  private router = inject(Router);
+ private authService = inject(AuthService);
+ private navigateService = inject(NavigateService)
 
-  public isLoading = false;
-  public errorMessage: string | null = null;
+  public isLoading = signal(false);
+  public errorMessage = signal<string | null>(null);
 
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -32,30 +32,32 @@ export class Login {
     return this.loginForm.get('password');
   }
   
+  navigateToRegister(){
+    this.navigateService.toRegister();
+  }
 
   onSubmit(): void {
-    this.errorMessage = null;
+    this.errorMessage.set(null); 
 
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true); 
 
     const credentials = this.loginForm.value as LoginRequest;
 
     this.authService.login(credentials).subscribe({
       next: (response) => {
         this.authService.setToken(response.token);
+        this.navigateService.toGroupsDashboard();         
+        this.isLoading.set(false);
       },
       error: (err: Error) => {
-        this.errorMessage = err.message; 
-        this.isLoading = false;
+        this.errorMessage.set(err.message); 
+        this.isLoading.set(false); 
       },
-      complete: () => {
-        this.isLoading = false;
-      }
     });
   }
 

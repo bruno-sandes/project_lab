@@ -1,0 +1,25 @@
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NavigateService {
+  private router = inject(Router);
+
+  public toRegister(): void {
+    this.router.navigate(['register']);
+  }
+
+  public toLogin(): void {
+    this.router.navigate(['login']);
+  }
+  
+  public toGroupsDashboard(): void {
+    this.router.navigate(['/groups']);
+  }
+  //metodo generico que constroi um path
+  public toRoute(path: string, params?: any): void {
+    this.router.navigate([path], { queryParams: params });
+  }
+}
