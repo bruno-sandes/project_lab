@@ -12,11 +12,11 @@ export class NavigateService {
   }
 
   public toLogin(): void {
-    this.router.navigate(['login']);
+    this.router.navigate(['']);
   }
   
   public toGroupsDashboard(): void {
-    this.router.navigate(['/groups']);
+    this.router.navigate(['/inicio/groups-dashboard']);
   }
   //metodo generico que constroi um path
   public toRoute(path: string, params?: any): void {

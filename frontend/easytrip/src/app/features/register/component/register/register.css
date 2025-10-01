@@ -120,10 +120,10 @@ body {
 
 /* Mensagens de Feedback e Validação */
 .validation-error {
-  color: #ff4d4f; /* Vermelho para erro */
+  color: #ff4d4f; 
   font-size: 13px;
   margin-top: 5px;
-  text-align: left;
+  text-align: center;
 }
 
 .success-message {
@@ -178,7 +178,7 @@ body {
 }
 
 .links a {
-  color: #35a99c; /* Cor do link adaptada ao Registro */
+  color: #35a99c; 
   text-decoration: none;
   font-size: 15px;
   margin-top: 10px;

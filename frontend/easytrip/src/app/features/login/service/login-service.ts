@@ -26,9 +26,7 @@ export class AuthService {
     this.isAuthenticatedSubject.next(true);
   }
 
-  /**
-   * GETTER: Obtém o token JWT armazenado.
-   */
+
   public getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }
@@ -66,7 +64,7 @@ export class AuthService {
     } else if (error.error && error.error.message) {
       errorMessage = error.error.message;
     } else {
-      errorMessage = `Erro ${error.status}: Tente novamente mais tarde.`;
+      errorMessage = `Erro: Tente novamente mais tarde.`;
     }
     
     return throwError(() => new Error(errorMessage));

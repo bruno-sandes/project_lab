@@ -90,7 +90,7 @@
           }
         </div>
 
-        <button type="submit" class="submit-button" [disabled]="registerForm.invalid || isLoading">
+        <button type="submit" class="submit-button"[disabled]="isLoading()">
           @if (isLoading()) {
             <span>Cadastrando...</span>
           } @else {

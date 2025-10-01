@@ -1,11 +1,30 @@
 import { Routes } from '@angular/router';
+import { AppMainLayout } from './shared/layout/app-main-layout/app-main-layout';
+import { NotFoundComponent } from './shared/not-found-component/not-found-component';
 
 export const routes: Routes = [
     {
-        path: '',
+        path: 'login',
         loadComponent: () => import('./features/login/component/login/login').then(m => m.Login)
-    },{
+    }, {
         path: 'register',
         loadComponent: () => import('./features/register/component/register/register').then(m => m.RegisterComponent)
-    }
+    }, {
+        path: 'inicio',
+        component: AppMainLayout,
+        //to do colocar um authguard aqui que intercepte qualquer unauthorized da apI
+        children: [
+            {
+                path: '',
+                redirectTo: 'groups-dashboard',
+                pathMatch: 'full'
+            },
+            {
+                path: 'groups-dashboard',
+                loadComponent: () => import('./features/groups-dashboard/groups-dashboard').then(m => m.GroupsDashboard)
+            },
+        ]
+    },
+
+
 ];

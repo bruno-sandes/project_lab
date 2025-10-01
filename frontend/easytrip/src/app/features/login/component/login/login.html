@@ -68,7 +68,7 @@
           }
         </div>
 
-        <button type="submit" class="submit-button" [disabled]="loginForm.invalid || isLoading">
+        <button type="submit" class="submit-button" [disabled]=" isLoading()">
           @if (isLoading()){
             <span>Entrando...</span>
           } @else {
