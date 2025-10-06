@@ -4,7 +4,9 @@ import (
 	"errors"
 	"project_lab/internal/models"
 	"project_lab/internal/repositories"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,16 +30,15 @@ func NewAuthService(userRepo repositories.UserRepository) AuthService {
 
 // RegisterUser lida com a lógica de negócio do cadastro.
 func (s *authService) RegisterUser(user *models.User) error {
-	// 1. Gera o hash da senha
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.New("erro ao gerar hash da senha")
 	}
 	user.PasswordHash = string(hashedPassword)
 
-	// 2. Salva o usuário no banco de dados
 	if err := s.userRepo.CreateUser(user); err != nil {
-		return err // Passa o erro (incluindo o de conflito) para o handler
+		return err
 	}
 
 	return nil
@@ -56,7 +57,34 @@ func (s *authService) Authenticate(email, password string) (string, error) {
 		return "", errors.New("usuário ou senha incorretos")
 	}
 
-	// Lógica de sucesso: Gerar e retornar o JWT
-	// Por enquanto, retorna uma string de teste
-	return "token_de_teste", nil
+	//  Gerar e retornar o JWT
+	token, err := s.generateToken(user.ID)
+	if err != nil {
+		return "", errors.New("falha ao gerar token de autenticação")
+	}
+	return token, nil
+}
+
+func (s *authService) generateToken(userID int) (string, error) {
+	// Define o tempo de expiração do token (Nesse casos 24 horas)
+	expirationTime := time.Now().Add(24 * time.Hour)
+
+	// Cria os dados do token
+	claims := &UserClaims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
+
+	// Cria o token usando o algoritmo de assinatura (HS256)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Assina o token com a chave secreta
+	tokenString, err := token.SignedString([]byte(JwtSecret))
+
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
 }
