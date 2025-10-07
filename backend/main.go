@@ -6,12 +6,28 @@ import (
 	"net/http"
 	"os"
 	"project_lab/internal/handlers"
+	"project_lab/internal/middleware"
 	"project_lab/internal/repositories"
 	"project_lab/internal/services"
 
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
+
+func groupsRouter(h *handlers.TravelGroupHandler) http.HandlerFunc {
+	// Retorna uma função anônima que é o nosso Handler unificado
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Usa o r.Method para decidir qual Handler real chamar
+		switch r.Method {
+		case "GET":
+			h.ListGroups(w, r) // Vai listar os grupos
+		case "POST":
+			h.CreateGroupHandler(w, r) // Vai criar um novo grupo
+		default:
+			http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		}
+	}
+}
 
 func main() {
 	err := godotenv.Load()
@@ -33,10 +49,14 @@ func main() {
 	authService := services.NewAuthService(userRepo)
 	authHandler := handlers.NewAuthHandler(authService)
 
+	travelGroupsRepo := repositories.NewTravelGroupRepository(db)
+	travelGroupsHandler := handlers.NewTravelGroupHandler(travelGroupsRepo)
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/auth/register", authHandler.RegisterUserHandler)
 	mux.HandleFunc("/auth/login", authHandler.LoginUserHandler)
+	mux.Handle("/groups", middleware.AuthMiddleware(groupsRouter(travelGroupsHandler)))
 
 	// Configuração do middleware CORS
 	c := cors.New(cors.Options{

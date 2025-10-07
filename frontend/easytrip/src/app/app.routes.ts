@@ -6,10 +6,18 @@ export const routes: Routes = [
     {
         path: 'login',
         loadComponent: () => import('./features/login/component/login/login').then(m => m.Login)
+    
     }, {
         path: 'register',
         loadComponent: () => import('./features/register/component/register/register').then(m => m.RegisterComponent)
-    }, {
+    },
+    {
+        path: '',
+        redirectTo: 'login',
+        pathMatch: 'full'
+        
+    },
+    {
         path: 'inicio',
         component: AppMainLayout,
         //to do colocar um authguard aqui que intercepte qualquer unauthorized da apI
