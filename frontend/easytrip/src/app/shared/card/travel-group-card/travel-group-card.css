@@ -1,0 +1,124 @@
+/* src/app/features/groups/components/travel-group-card/travel-group-card.component.css */
+
+/* Variáveis CSS (Equivalente a SCSS) */
+:root {
+    --primary-color: #007bff;
+    --past-height: 250px;
+}
+
+.card-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+}
+
+.card-container:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-image {
+    background-color: #ddd;
+    background-size: cover;
+    background-position: center;
+    min-height: 120px; 
+}
+
+.card-content {
+    padding: 15px 20px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+/* ESTILOS PARA LAYOUT 'PAST' (Viagens Passadas) */
+.card-container.past {
+    height: var(--past-height);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-container.past .card-image {
+    flex-basis: 60%;
+}
+
+.card-container.past .card-content {
+    flex-basis: 40%;
+}
+
+.card-container.past .card-details {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0 0 0;
+}
+
+.card-container.past .member-count {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+/* ESTILOS PARA LAYOUT 'UPCOMING' (Próximas Viagens) */
+.card-container.upcoming {
+    width: 350px;
+    min-width: 300px;
+}
+
+.card-container.upcoming .card-image {
+    min-height: 150px;
+}
+
+.card-container.upcoming .upcoming-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.card-container.upcoming .days-indicator {
+    background-color: #f7f9fc;
+    color: #ff6b6b;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.card-container.upcoming .card-dates {
+    font-size: 14px;
+    color: #888;
+    margin: 0 0 15px 0;
+}
+
+/* Avatares */
+.card-container.upcoming .member-avatars {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.card-container.upcoming .avatar-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ccc;
+    border: 2px solid white;
+    margin-left: -10px;
+}
+
+.card-container.upcoming .avatar-icon:first-child {
+    margin-left: 0;
+}
+
+.card-container.upcoming .avatar-count {
+    font-size: 14px;
+    color: var(--primary-color);
+    font-weight: 500;
+    padding-left: 5px;
+}
