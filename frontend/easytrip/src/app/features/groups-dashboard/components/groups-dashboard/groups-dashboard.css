@@ -1,0 +1,86 @@
+.groups-dashboard-page{
+    
+    padding: 2rem;
+    margin-left: 10rem;
+    margin-right: 10rem;
+    }
+
+.dashboard-control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-top: 10px;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px; 
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.btn-secondary {
+    background-color: white;
+    font-weight: 600;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.btn-secondary:hover {
+    background-color: #f0f0f0;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    font-weight: 600;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos de Seção e Listas */
+section {
+    margin-bottom: 40px;
+}
+
+section h2 {
+    font-size: 22px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.cards-list {
+    display: flex;
+    gap: 20px;
+}
+
+/* Layout para Viagens Passadas (Grid Responsivo) */
+.cards-list.past-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.empty-state {
+    color: #888;
+    padding: 20px;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    width: 100%;
+}

@@ -1,0 +1,47 @@
+<div class="groups-dashboard-page">
+  <header class="dashboard-control-header">
+    <h1>Painel Principal</h1>
+    <div class="action-buttons">
+      <button class="btn btn-secondary" (click)="onJoinGroup()">Entrar em Grupo</button>
+      <button class="btn btn-primary" (click)="onNavigateToCreateGroup()">Criar Grupo</button>
+    </div>
+  </header>
+
+  <section class="upcoming-trips-section">
+    <h2>Próximas Viagens</h2>
+    <div class="cards-list upcoming-layout">
+      
+      @for (group of upcomingGroups(); track group.id) {
+        <app-travel-group-card 
+          [group]="group" 
+          layout="upcoming">
+        </app-travel-group-card>
+      } @empty {
+        <p class="empty-state">
+          Você não tem viagens futuras planejadas. Que tal criar uma agora?
+        </p>
+      }
+    </div>
+  </section>
+
+  <section class="past-trips-section">
+    <h2>Viagens Passadas</h2>
+    
+    <div class="cards-list past-layout">
+      
+      @for (group of pastGroups(); track group.id) {
+        <app-travel-group-card 
+          [group]="group" 
+          layout="past">
+        </app-travel-group-card>
+      } @empty {
+        @if (allGroups().length > 0) {
+          <p class="empty-state">
+            Ainda não há viagens passadas para mostrar.
+          </p>
+        }
+      }
+    </div>
+  </section>
+
+</div>

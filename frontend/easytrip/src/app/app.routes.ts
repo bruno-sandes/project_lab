@@ -29,7 +29,7 @@ export const routes: Routes = [
             },
             {
                 path: 'groups-dashboard',
-                loadComponent: () => import('./features/groups-dashboard/groups-dashboard').then(m => m.GroupsDashboard)
+                loadComponent: () => import('./features/groups-dashboard/components/groups-dashboard/groups-dashboard').then(m => m.GroupsDashboard)
             },
         ]
     },
