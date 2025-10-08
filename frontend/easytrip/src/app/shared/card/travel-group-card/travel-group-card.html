@@ -1,0 +1,36 @@
+<div class="card-container" [class.upcoming]="layout() === 'upcoming'" [class.past]="layout() === 'past'">
+<!-- adicionar logica de imagem futuramente usando api de imagens  -->
+    <div class="card-image">
+    </div>
+
+    <div class="card-content">
+
+        @if (layout() === 'upcoming') {
+        <div class="upcoming-header">
+            <span class="days-indicator">Faltam {{ daysDifference() }} dias</span>
+        </div>
+        <h3 class="card-title">{{ group().name }}</h3>
+        <p class="card-dates">
+            {{ group().startDate | date:'dd MMM' }} - {{ group().endDate | date:'dd MMM' }}
+        </p>
+
+        <div class="member-avatars">
+            @for (member of displayedMembers(); track $index) {
+            <div class="avatar-icon"></div>
+            }
+
+            @if (remainingMembersCount() > 0) {
+            <div class="avatar-count">+{{ remainingMembersCount() }}</div>
+            }
+        </div>
+        }
+        @if (layout() === 'past') {
+        <h3 class="card-title">{{ group().name }}</h3>
+        <p class="card-details">
+            {{ group().startDate | date:'dd MMM' }} - {{ group().endDate | date:'dd MMM' }} |
+            <span class="member-count">{{ group().memberCount }} membros</span>
+        </p>
+        }
+
+    </div>
+</div>

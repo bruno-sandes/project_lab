@@ -37,14 +37,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: usuario@email.com
-                password:
-                  type: string
-                  example: senha123
+              $ref: '#/components/schemas/UserLoginRequest'
       responses:
         "200":
           description: Login realizado com sucesso
@@ -67,22 +60,12 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: João Silva
-                email:
-                  type: string
-                  example: usuario@email.com
-                password:
-                  type: string
-                  example: senha123
+              $ref: '#/components/schemas/UserRegisterRequest'
       responses:
         "201":
           description: Usuário criado com sucesso
-        "400":
-          description: Erro de validação
+        "409":
+          description: Conflito (E-mail já está em uso)
   /groups:
     post:
       tags: [Grupos de Viagem]
@@ -94,37 +77,34 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: Viagem para Rio de Janeiro
-                start_date:
-                  type: string
-                  format: date
-                  example: 2025-12-10
-                end_date:
-                  type: string
-                  format: date
-                  example: 2025-12-20
+              $ref: '#/components/schemas/TravelGroupCreateRequest'
       responses:
         "201":
           description: Grupo criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TravelGroupDetails'
+        "401":
+          description: Não autorizado (Token ausente ou inválido)
+        "422":
+          description: 'Entidade não processável (Dados inválidos, ex: datas erradas)'
     get:
       tags: [Grupos de Viagem]
-      summary: Lista grupos do usuário
+      summary: Lista grupos do usuário logado
       security:
         - bearerAuth: []
-      parameters:
-        - name: userId
-          in: query
-          schema:
-            type: integer
-          required: false
-          description: Filtrar por ID do usuário
       responses:
         "200":
           description: Lista de grupos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TravelGroupListItem'
+        "401":
+          description: Não autorizado (Token ausente ou inválido)
   /groups/{id}:
     get:
       tags: [Grupos de Viagem]
@@ -140,6 +120,10 @@ paths:
       responses:
         "200":
           description: Detalhes do grupo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TravelGroupDetails'
   /groups/{id}/destinations:
     post:
       tags: [Destinos]
@@ -191,3 +175,80 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    UserLoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: usuario@email.com
+        password:
+          type: string
+          example: senha123
+    UserRegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: João Silva
+        email:
+          type: string
+          example: usuario@email.com
+        password:
+          type: string
+          example: senha123
+    TravelGroupCreateRequest:
+      type: object
+      required:
+        - name
+        - start_date
+        - end_date
+      properties:
+        name:
+          type: string
+          example: Viagem para Rio de Janeiro
+        start_date:
+          type: string
+          format: date
+          example: 2025-12-10
+        end_date:
+          type: string
+          format: date
+          example: 2025-12-20
+    TravelGroupListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        member_count:
+          type: integer
+        creator_id:
+          type: integer
+        creator_name:
+          type: string
+    TravelGroupDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        creator_id:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
