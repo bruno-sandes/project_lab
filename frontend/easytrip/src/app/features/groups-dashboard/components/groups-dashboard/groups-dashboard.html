@@ -28,18 +28,17 @@
     <h2>Viagens Passadas</h2>
     
     <div class="cards-list past-layout">
-      
       @for (group of pastGroups(); track group.id) {
         <app-travel-group-card 
           [group]="group" 
           layout="past">
         </app-travel-group-card>
       } @empty {
-        @if (allGroups().length > 0) {
+      
           <p class="empty-state">
             Ainda não há viagens passadas para mostrar.
           </p>
-        }
+        
       }
     </div>
   </section>
