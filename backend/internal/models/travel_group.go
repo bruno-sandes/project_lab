@@ -6,12 +6,13 @@ import (
 
 // TravelGroup é a estrutura principal que mapeia a tabela travel_groups.
 type TravelGroup struct {
-	ID        int       `json:"id"`
-	Name      string    `json:"name"`
-	CreatorID int       `json:"creator_id"`
-	StartDate time.Time `json:"start_date"`
-	EndDate   time.Time `json:"end_date"`
-	CreatedAt time.Time `json:"created_at"`
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	CreatorID   int       `json:"creator_id"`
+	Description string    `json:"description"`
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // TravelGroupListItem é a estrutura simplificada para a tela de listagem.
@@ -19,6 +20,7 @@ type TravelGroup struct {
 type TravelGroupListItem struct {
 	ID          int       `json:"id"`
 	Name        string    `json:"name"`
+	Description string    `json:"description"`
 	StartDate   time.Time `json:"start_date"`
 	EndDate     time.Time `json:"end_date"`
 	MemberCount int       `json:"member_count"`

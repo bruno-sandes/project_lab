@@ -32,13 +32,14 @@ func (r *postgresTravelGroupRepository) CreateTravelGroup(group *models.TravelGr
 
 	query := `
         INSERT INTO travel_groups 
-        (name, creator_id, start_date, end_date, created_at) 
+        (name,description , creator_id, start_date, end_date, created_at) 
         VALUES 
-        ($1, $2, $3, $4, NOW())
+        ($1, $2, $3, $4, $5, NOW())
         RETURNING id
     `
 	err = tx.QueryRow(query,
 		group.Name,
+		group.Description,
 		group.CreatorID,
 		group.StartDate,
 		group.EndDate,
@@ -69,6 +70,7 @@ func (r *postgresTravelGroupRepository) ListGroupsByUserId(userId int) ([]models
 		SELECT 
 			tg.id,
 			tg.name,
+			tg.description,
 			tg.start_date,
 			tg.end_date,
 			tg.creator_id,
@@ -98,6 +100,7 @@ func (r *postgresTravelGroupRepository) ListGroupsByUserId(userId int) ([]models
 		err := rows.Scan(
 			&g.ID,
 			&g.Name,
+			&g.Description,
 			&g.StartDate,
 			&g.EndDate,
 			&g.CreatorId,
