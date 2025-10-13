@@ -15,6 +15,13 @@ type TravelGroup struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type TravelGroupCreateRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	StartDate   string `json:"start_date"`
+	EndDate     string `json:"end_date"`
+}
+
 // TravelGroupListItem é a estrutura simplificada para a tela de listagem.
 // Inclui o nome e id do criador
 type TravelGroupListItem struct {

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: API - Aplicação de Planejamento de Viagens em Grupo
-  description: >
+  description: |
     Documentação da API para organização colaborativa de viagens em grupo.
     Contém endpoints para autenticação, gerenciamento de grupos, destinos,
     votações, despesas e tarefas.
@@ -84,7 +84,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TravelGroupDetails'
+                $ref: '#/components/schemas/TravelGroupResponse' # <-- CORRIGIDO AQUI
         "401":
           description: Não autorizado (Token ausente ou inválido)
         "422":
@@ -207,6 +207,10 @@ components:
         name:
           type: string
           example: Viagem para Rio de Janeiro
+        description:
+          type: string
+          description: Uma breve descrição ou tema da viagem.
+          example: Uma viagem focada em praias e pontos turísticos clássicos.
         start_date:
           type: string
           format: date
@@ -215,6 +219,31 @@ components:
           type: string
           format: date
           example: 2025-12-20
+    # NOVO SCHEMA PARA O RETORNO 201
+    TravelGroupResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID gerado pelo banco de dados.
+          example: 10
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        creator_id:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          nullable: true # Pode ser nulo/zero se o repo não ler o campo de volta
     TravelGroupListItem:
       type: object
       properties:
@@ -222,6 +251,10 @@ components:
           type: integer
         name:
           type: string
+        description:
+          type: string
+          description: Descrição do grupo (para exibição em cards/listas).
+          nullable: true
         start_date:
           type: string
           format: date-time
@@ -241,6 +274,9 @@ components:
           type: integer
         name:
           type: string
+        description:
+          type: string
+          nullable: true
         creator_id:
           type: integer
         start_date:
