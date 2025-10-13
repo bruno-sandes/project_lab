@@ -14,10 +14,15 @@ export class NavigateService {
   public toLogin(): void {
     this.router.navigate(['']);
   }
-  
+
   public toGroupsDashboard(): void {
     this.router.navigate(['/inicio/groups-dashboard']);
   }
+
+  public toCreateTravelGroup(): void {
+    this.router.navigate(['/inicio/create-group']);
+  }
+
   //metodo generico que constroi um path
   public toRoute(path: string, params?: any): void {
     this.router.navigate([path], { queryParams: params });

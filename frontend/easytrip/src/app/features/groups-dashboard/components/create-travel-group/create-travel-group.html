@@ -1,0 +1,88 @@
+<div class="create-trip-page">
+  <div class="form-container">
+    <div class="form-header">
+      <h1>Crie uma nova Viagem</h1>
+      <p>Vamos iniciar o planejamento da sua proxima aventura.</p>
+    </div>
+
+    <form [formGroup]="tripForm" (ngSubmit)="onSubmit()">
+      
+      <div class="form-group">
+        <label for="tripName">Nome da viagem</label>
+        <input 
+          id="tripName" 
+          type="text" 
+          placeholder="e.g. Verão na suiça, Viagem de férias ao japão"
+          formControlName="tripName">
+        
+        @if (tripForm.controls['tripName'].touched && tripForm.controls['tripName'].errors) {
+          @if (tripForm.controls['tripName'].errors['required']) {
+            <div class="validation-error">Nome da viagem é obrigatório.</div>
+          }
+          @if (tripForm.controls['tripName'].errors['minlength']) {
+            <div class="validation-error">O nome deve ter no mínimo 3 caracteres.</div>
+          }
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descrição</label>
+        <textarea 
+          id="description" 
+          placeholder="Um resumo curto do planejamento da viagem."
+          formControlName="description" 
+          rows="4"></textarea>
+      </div>
+
+      <div class="date-group">
+        
+        <div class="form-group">
+          <label for="startDate">Data de ínicio *</label>
+          <div class="date-input-wrapper">
+            <input 
+              id="startDate" 
+              type="date" 
+              formControlName="startDate">
+            <span class="calendar-icon"></span>
+          </div>
+          @if (tripForm.controls['startDate'].touched && tripForm.controls['startDate'].errors?.['required']) {
+            <div class="validation-error">Data de início é obrigatória.</div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">Data de fim</label>
+          <div class="date-input-wrapper">
+            <input 
+              id="endDate" 
+              type="date" 
+              formControlName="endDate">
+            <span class="calendar-icon"></span>
+          </div>
+          @if (tripForm.controls['endDate'].touched && tripForm.controls['endDate'].errors?.['required']) {
+            <div class="validation-error">Data de fim é obrigatória.</div>
+          }
+        </div>
+      </div>
+
+      
+      @if (errorMessage()) {
+        <div class="alert alert-danger">{{ errorMessage() }}</div>
+      }
+      @if (successMessage()) {
+        <div class="alert alert-success">{{ successMessage() }}</div>
+      }
+
+      <button 
+        type="submit" 
+        class="btn btn-primary" 
+        [disabled]="tripForm.invalid || isLoading()">
+        @if (isLoading()) {
+          <span>Criando...</span>
+        } @else {
+          <span>Criar grupo de viagem</span>
+        }
+      </button>
+    </form>
+  </div>
+</div>

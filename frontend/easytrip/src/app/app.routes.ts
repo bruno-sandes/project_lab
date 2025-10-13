@@ -6,7 +6,7 @@ export const routes: Routes = [
     {
         path: 'login',
         loadComponent: () => import('./features/login/component/login/login').then(m => m.Login)
-    
+
     }, {
         path: 'register',
         loadComponent: () => import('./features/register/component/register/register').then(m => m.RegisterComponent)
@@ -15,7 +15,7 @@ export const routes: Routes = [
         path: '',
         redirectTo: 'login',
         pathMatch: 'full'
-        
+
     },
     {
         path: 'inicio',
@@ -31,8 +31,10 @@ export const routes: Routes = [
                 path: 'groups-dashboard',
                 loadComponent: () => import('./features/groups-dashboard/components/groups-dashboard/groups-dashboard').then(m => m.GroupsDashboard)
             },
+            {
+                path: 'create-group',
+                loadComponent: () => import('./features/groups-dashboard/components/create-travel-group/create-travel-group').then(m => m.CreateTravelGroup)
+            }
         ]
-    },
-
-
+    }
 ];
