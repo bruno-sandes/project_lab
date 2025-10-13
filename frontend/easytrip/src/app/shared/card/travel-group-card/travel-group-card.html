@@ -11,7 +11,7 @@
         </div>
         <h3 class="card-title">{{ group().name }}</h3>
         <p class="card-dates">
-            {{ group().startDate | date:'dd MMM' }} - {{ group().endDate | date:'dd MMM' }}
+            {{ group().start_date| date:'dd MMM' }} - {{ group().end_date| date:'dd MMM' }}
         </p>
 
         <div class="member-avatars">
@@ -27,7 +27,7 @@
         @if (layout() === 'past') {
         <h3 class="card-title">{{ group().name }}</h3>
         <p class="card-details">
-            {{ group().startDate | date:'dd MMM' }} - {{ group().endDate | date:'dd MMM' }} |
+            {{ group().start_date | date:'dd MMM' }} - {{ group().end_date| date:'dd MMM' }} |
             <span class="member-count">{{ group().memberCount }} membros</span>
         </p>
         }

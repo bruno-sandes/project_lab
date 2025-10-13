@@ -5,8 +5,9 @@
  */
 export interface TravelGroupCreateRequest {
   name: string;
-  startDate: string; // 'YYYY-MM-DD'
-  endDate: string;   // 'YYYY-MM-DD'
+  description?: string;
+  start_date: string; // 'YYYY-MM-DD'
+  end_date: string;   // 'YYYY-MM-DD'
 }
 
 /**
@@ -16,8 +17,9 @@ export interface TravelGroupCreateRequest {
 export interface TravelGroupListItem {
   id: number;
   name: string;
-  startDate: string; 
-  endDate: string;   
+  description: string;
+  start_date: string; 
+  end_date: string;   
   memberCount: number;
   creatorId: number;
   creatorName: string;
@@ -30,8 +32,20 @@ export interface TravelGroupListItem {
 export interface TravelGroupDetails {
   id: number;
   name: string;
+  description: string;
   creatorId: number;
-  startDate: string;
-  endDate: string;
+  start_date: string;
+  end_date: string;
   createdAt: string;
+}
+
+export interface TravelGroupListItem {
+  id: number;
+  name: string;
+  description: string;
+  start_date: string; 
+  end_date: string;   
+  memberCount: number;
+  creatorId: number;
+  creatorName: string;
 }

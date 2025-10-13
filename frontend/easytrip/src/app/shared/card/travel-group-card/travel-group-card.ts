@@ -20,7 +20,7 @@ export class TravelGroupCard {
 
     const today = new Date();
 
-    const dateToCheck = new Date(groupData.startDate); 
+    const dateToCheck = new Date(groupData.start_date); 
     const diffTime = Math.abs(dateToCheck.getTime() - today.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
     
