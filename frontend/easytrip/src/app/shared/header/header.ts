@@ -31,8 +31,11 @@ export class Header {
     // this.navigateService.toExplore();
   }
 
+navigateToProfile(){
+  this.navigateService.toProfile();
+}
+
   navigateToHome() {
-    console.log('Navegar para inicio');
     this.navigateService.toGroupsDashboard();
   }
 }

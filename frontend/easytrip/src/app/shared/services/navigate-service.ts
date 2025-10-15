@@ -23,6 +23,11 @@ export class NavigateService {
     this.router.navigate(['/inicio/create-group']);
   }
 
+  public toProfile(): void {
+    this.router.navigate(['/inicio/profile']);
+
+  }
+
   //metodo generico que constroi um path
   public toRoute(path: string, params?: any): void {
     this.router.navigate([path], { queryParams: params });

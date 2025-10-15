@@ -34,6 +34,10 @@ export const routes: Routes = [
             {
                 path: 'create-group',
                 loadComponent: () => import('./features/groups-dashboard/components/create-travel-group/create-travel-group').then(m => m.CreateTravelGroup)
+            },
+            {
+                path: 'profile',
+                loadComponent:() => import('./features/profile/components/profile/profile').then(m => m.Profile)
             }
         ]
     }

@@ -1,0 +1,138 @@
+/* Container Central e Alinhamento */
+.profile-card-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    width: 100%;
+}
+
+/* Card Principal (Fundo Branco, Sombra) */
+.profile-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding: 40px;
+    width: 100%;
+    max-width: 550px; /* Limita a largura como no seu design */
+    box-sizing: border-box;
+}
+
+/* Títulos */
+.main-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin-top: 0;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 30px;
+}
+
+/* Seção Avatar (Apenas Placeholder) */
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #f0f0f0; /* Cor de placeholder */
+    border: 3px solid #007bff;
+    margin-bottom: 10px;
+}
+
+.avatar-placeholder img {
+    width: 100%;       /* Garante que a imagem ocupe toda a largura do container (80px) */
+    height: 100%;      /* Garante que a imagem ocupe toda a altura do container (80px) */
+    border-radius: 50%; /* Garante que a imagem siga o formato circular do container */
+    object-fit: cover; /* Recorta a imagem para cobrir a área sem distorcer, como um fundo */
+}
+.current-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.current-email {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+/* Estilos de Formulário */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+/* Estilo dos Inputs */
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* Estilo para Campo Desabilitado (Email) */
+.disabled-input {
+    background-color: #f7f7f7;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Botão Salvar */
+.save-button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    float: right; /* Alinha o botão à direita, como no design */
+    margin-top: 20px;
+}
+
+.save-button:hover:not([disabled]) {
+    background-color: #0056b3;
+}
+
+.save-button:disabled {
+    background-color: #a0c3e8;
+    cursor: not-allowed;
+}
+
+/* Mensagens de Erro */
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}

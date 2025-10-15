@@ -1,0 +1,56 @@
+<div class="profile-card-wrapper">
+    <div class="profile-card">
+        <h2 class="main-title">Meu Perfil</h2>
+        <p class="subtitle">Gerencie suas informações e configurações.</p>
+
+        <div class="avatar-section">
+            <div class="avatar-placeholder">
+                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="default Profile">
+            </div>
+            <h3 class="current-name">{{ profileForm.controls.name.value }}</h3>
+            <p class="current-email">{{ userEmail() }}</p>
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+            
+            <div class="form-group">
+                <label for="name">Nome</label>
+                <input 
+                    id="name" 
+                    type="text" 
+                    formControlName="name"
+                    placeholder="Seu nome"
+                >
+                @if (nameControl.invalid && nameControl.touched) {
+                    <div class="error-message">
+                        @if (nameControl.errors?.['required']) {
+                            Nome é obrigatório.
+                        }
+                        @if (nameControl.errors?.['minlength']) {
+                            Nome deve ter no mínimo 3 caracteres.
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input 
+                    id="email" 
+                    type="email" 
+                    [value]="userEmail()" 
+                    disabled 
+                    class="disabled-input"
+                >
+            </div>
+
+            <button 
+                type="submit" 
+                class="save-button" 
+                [disabled]="profileForm.invalid || profileForm.pristine"
+            >
+                Salvar Alterações
+            </button>
+        </form>
+    </div>
+</div>
