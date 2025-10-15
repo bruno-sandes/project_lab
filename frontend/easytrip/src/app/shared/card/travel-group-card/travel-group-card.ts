@@ -27,10 +27,7 @@ export class TravelGroupCard {
     return diffDays;
   });
 
-  displayedMembers = computed(() => {
-      const memberCount = this.group().memberCount;
-      return Array(Math.min(4, memberCount)).fill(0);
-  });
+ 
 
   remainingMembersCount = computed(() => {
       const memberCount = this.group().memberCount;

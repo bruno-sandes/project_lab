@@ -1,6 +1,7 @@
 <div class="card-container" [class.upcoming]="layout() === 'upcoming'" [class.past]="layout() === 'past'">
     <div class="card-image">
-        <img src="https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1169" alt="plane image">
+        <img src="https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1169"
+            alt="plane image">
     </div>
 
     <div class="card-content">
@@ -14,15 +15,6 @@
             {{ group().start_date| date:'dd MMM' }} - {{ group().end_date| date:'dd MMM' }}
         </p>
 
-        <div class="member-avatars">
-            @for (member of displayedMembers(); track $index) {
-            <div class="avatar-icon"></div>
-            }
-
-            @if (remainingMembersCount() > 0) {
-            <div class="avatar-count">+{{ remainingMembersCount() }}</div>
-            }
-        </div>
         }
         @if (layout() === 'past') {
         <h3 class="card-title">{{ group().name }}</h3>
