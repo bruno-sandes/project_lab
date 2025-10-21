@@ -16,6 +16,7 @@ export class Login {
  private navigateService = inject(NavigateService)
 
   public isLoading = signal(false);
+  passwordVisible = signal(false);
   public errorMessage = signal<string | null>(null);
 
   loginForm = new FormGroup({
@@ -61,4 +62,8 @@ export class Login {
     });
   }
 
+  togglePasswordVisibility() {
+    this.passwordVisible.update(val => !val);
+  }
+  
 }

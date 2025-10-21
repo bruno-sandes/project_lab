@@ -173,6 +173,40 @@
   padding: 5px 0;
 }
 
+
+.password-wrapper {
+    position: relative;
+    display: block;
+}
+
+.password-wrapper .input-field {
+    /* Sobrescreve o padding-right SÓ para o input de senha. 
+       Isso libera espaço para o ícone sem afetar o campo de e-mail. */
+    padding-right: 40px; 
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 1px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    z-index: 10;
+    padding: 2px; /* Área de clique maior */
+    line-height: 1; /* Garante que o alinhamento vertical seja preciso */
+}
+
+.password-toggle:hover {
+    color: #333;
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
 /* Opcional: Estilizar o input quando inválido (melhora a usabilidade) */
 .form-field input.ng-invalid.ng-touched {
   border-color: #d9534f;
