@@ -1,0 +1,81 @@
+<div class="group-page-container">
+    
+    <header class="page-header">
+        <h1 class="group-title">{{ groupName() }}</h1>
+        <p class="group-organizer">Organizado por {{ organizerName() }}</p>
+    </header>
+
+    <nav class="tabs-nav">
+        @for (tab of tabs; track tab.key) {
+            <button 
+                [class.active]="activeTab() === tab.key" 
+                (click)="setActiveTab(tab.key)">
+                {{ tab.label }}
+                @if (tab.key === 'members' && members().length > 0) {
+                    ({{ members().length }})
+                }
+            </button>
+        }
+    </nav>
+
+    <div class="tab-content">
+        @if (activeTab() === 'members') {
+            <div class="members-list-container">
+                <h2>Membros ({{ members().length }})</h2>
+                
+                @for (member of members(); track member.id) {
+                    <div class="member-item">
+                        <img [src]="'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'" alt="{{ member.name }}" class="member-avatar">
+                        <div class="member-info">
+                            <span class="member-name">{{ member.name }}</span>
+                            <span class="member-role">{{ member.role }}</span>
+                        </div>
+                        @if (member.role === 'Organizador') {
+                            <span class="role-tag">Organizador</span>
+                        }
+                    </div>
+                } @empty {
+                    <p class="empty-state">Este grupo ainda não tem membros.</p>
+                }
+
+                <div class="action-buttons-footer">
+                    <button class="btn btn-primary">Editar Grupo</button>
+                    <button class="btn btn-secondary">Sair do Grupo</button>
+                </div>
+            </div>
+        }
+
+        @if (activeTab() === 'destinations') {
+            <div class="section-container">
+                <h2>Destinos Planejados</h2>
+                @for (destination of destinations(); track destination.id) {
+                    <div class="item-card">{{ destination.name }}</div> 
+                } @empty {
+                    <p class="empty-state">Nenhum destino foi sugerido ainda.</p>
+                }
+            </div>
+        }
+        
+        @if (activeTab() === 'votings') {
+            <div class="section-container">
+                <h2>Votações Ativas</h2>
+                @for (voting of votings(); track voting.id) {
+                    <div class="item-card">{{ voting.question }}</div> 
+                } @empty {
+                    <p class="empty-state">Não há votações ativas ou passadas.</p>
+                }
+            </div>
+        }
+        
+        @if (activeTab() === 'expenses') {
+            <div class="section-container">
+                <h2>Despesas do Grupo</h2>
+                @for (expense of expenses(); track expense.id) {
+                    <div class="item-card">{{ expense.description }} - R$ {{ expense.amount }}</div> 
+                } @empty {
+                    <p class="empty-state">Nenhuma despesa foi registrada.</p>
+                }
+            </div>
+        }
+    </div>
+</div>

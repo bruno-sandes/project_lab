@@ -38,6 +38,10 @@ export const routes: Routes = [
             {
                 path: 'profile',
                 loadComponent:() => import('./features/profile/components/profile/profile').then(m => m.Profile)
+            },
+            {
+                path: 'travel-group/:travelGroupId',
+                loadComponent:() => import('./features/travelGroup/components/travel-group-menu/travel-group-menu').then(m => m.TravelGroupMenu)                
             }
         ]
     }

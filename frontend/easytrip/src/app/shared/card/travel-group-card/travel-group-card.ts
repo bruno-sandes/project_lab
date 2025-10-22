@@ -1,6 +1,7 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { TravelGroupListItem } from '../../../features/groups-dashboard/models/travel_groups';
 import { DatePipe } from '@angular/common';
+import { NavigateService } from '../../services/navigate-service';
 
 export type CardLayout = 'upcoming' | 'past'
 
@@ -13,6 +14,8 @@ export type CardLayout = 'upcoming' | 'past'
 export class TravelGroupCard {
   group = input.required<TravelGroupListItem>();
   layout = input.required<CardLayout>();
+
+  navigationService = inject(NavigateService)
 
   daysDifference = computed(() => {
     const groupData = this.group();
@@ -27,6 +30,9 @@ export class TravelGroupCard {
     return diffDays;
   });
 
+  cardClick(){
+    this.navigationService.toTravelGroup(this.group().id);
+  }
  
 
   remainingMembersCount = computed(() => {

@@ -25,8 +25,12 @@ export class NavigateService {
 
   public toProfile(): void {
     this.router.navigate(['/inicio/profile']);
-
   }
+
+  public toTravelGroup(travelGroupId:number): void {
+    this.router.navigate([`/inicio/travel-group/${travelGroupId}`]);
+  }
+
 
   //metodo generico que constroi um path
   public toRoute(path: string, params?: any): void {
