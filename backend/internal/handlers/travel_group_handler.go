@@ -7,6 +7,7 @@ import (
 	"project_lab/internal/middleware"
 	"project_lab/internal/models"
 	"project_lab/internal/repositories"
+	"strconv"
 	"time"
 )
 
@@ -110,4 +111,34 @@ func (h *TravelGroupHandler) ListGroups(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Erro ao serializar resposta JSON.", http.StatusInternalServerError)
 		return
 	}
+}
+func (h *TravelGroupHandler) GetGroupDetailsWithID(w http.ResponseWriter, r *http.Request, groupIDStr string) {
+
+	groupID, err := strconv.Atoi(groupIDStr)
+	if err != nil {
+		http.Error(w, "ID do grupo inválido. Deve ser um número.", http.StatusBadRequest)
+		return
+	}
+
+	// Obter o ID do usuário autenticado (lógica de autorização)
+	userIDValue := r.Context().Value(middleware.UserIDKey)
+	userID, ok := userIDValue.(int)
+	if !ok {
+		http.Error(w, "Não autorizado. ID do usuário não encontrado.", http.StatusUnauthorized)
+		return
+	}
+
+	details, err := h.repo.GetGroupDetails(groupID, userID)
+	if err != nil {
+		if err.Error() == "grupo não encontrado ou usuário não autorizado a visualizá-lo" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		fmt.Printf("Erro ao buscar detalhes do grupo %d: %v\n", groupID, err)
+		http.Error(w, "Erro interno ao buscar detalhes do grupo.", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(details)
 }

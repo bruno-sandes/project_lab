@@ -34,3 +34,15 @@ type TravelGroupListItem struct {
 	CreatorId   int       `json:"creator_id"`
 	CreatorName string    `json:"creator_name"`
 }
+
+// TravelGroupDetails representa os dados básicos de um grupo para a página de visualização
+type TravelGroupDetails struct {
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	StartDate   time.Time `json:"startDate"`
+	EndDate     time.Time `json:"endDate"`
+	CreatorID   int       `json:"creatorId"`
+	CreatorName string    `json:"organizerName"`
+	MemberCount int       `json:"memberCount"`
+}

@@ -9,6 +9,7 @@ import (
 type TravelGroupRepository interface {
 	ListGroupsByUserId(userID int) ([]models.TravelGroupListItem, error)
 	CreateTravelGroup(group *models.TravelGroup) error
+	GetGroupDetails(groupID int, userID int) (*models.TravelGroupDetails, error)
 }
 
 type postgresTravelGroupRepository struct {
@@ -126,4 +127,59 @@ func (r *postgresTravelGroupRepository) ListGroupsByUserId(userId int) ([]models
 	}
 
 	return groups, nil
+}
+
+func (r *postgresTravelGroupRepository) GetGroupDetails(groupID int, userID int) (*models.TravelGroupDetails, error) {
+
+	// Consulta SQL para obter detalhes básicos, nome do criador e contagem de membros.
+	// Também valida se o usuário (userID) é membro/criador.
+	query := `
+        SELECT 
+            tg.id,
+            tg.name,
+            tg.description,
+            tg.start_date,
+            tg.end_date,
+            tg.creator_id,
+            u.name AS creator_name,
+            (SELECT COUNT(*) FROM group_members gm WHERE gm.travel_group_id = tg.id) AS member_count
+        FROM 
+            travel_groups tg
+        JOIN 
+            users u ON tg.creator_id = u.id
+        WHERE
+            tg.id = $1
+            -- Verifica se o usuário é membro ou criador antes de retornar os detalhes
+            AND (tg.creator_id = $2 OR tg.id IN (SELECT travel_group_id FROM group_members WHERE user_id = $2));
+    `
+
+	var details models.TravelGroupDetails
+	var memberCount sql.NullInt32
+
+	err := r.db.QueryRow(query, groupID, userID).Scan(
+		&details.ID,
+		&details.Name,
+		&details.Description,
+		&details.StartDate,
+		&details.EndDate,
+		&details.CreatorID,
+		&details.CreatorName,
+		&memberCount,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("grupo não encontrado ou usuário não autorizado a visualizá-lo")
+		}
+		return nil, fmt.Errorf("erro ao buscar detalhes do grupo: %w", err)
+	}
+
+	// Garante que a contagem é um inteiro
+	if memberCount.Valid {
+		details.MemberCount = int(memberCount.Int32)
+	} else {
+		details.MemberCount = 0
+	}
+
+	return &details, nil
 }

@@ -15,17 +15,40 @@ import (
 )
 
 func groupsRouter(h *handlers.TravelGroupHandler) http.HandlerFunc {
-	// Retorna uma função anônima que é o nosso Handler unificado
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Usa o r.Method para decidir qual Handler real chamar
-		switch r.Method {
-		case "GET":
-			h.ListGroups(w, r) // Vai listar os grupos
-		case "POST":
-			h.CreateGroupHandler(w, r) // Vai criar um novo grupo
-		default:
-			http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+
+		// Rota de Listagem/Criação (Exatamente /groups)
+		if r.URL.Path == "/groups" || r.URL.Path == "/groups/" {
+			switch r.Method {
+			case "GET":
+				h.ListGroups(w, r) // GET /groups -> Listar
+			case "POST":
+				h.CreateGroupHandler(w, r) // POST /groups -> Criar
+			default:
+				http.Error(w, "Método não permitido para /groups", http.StatusMethodNotAllowed)
+			}
+			return
 		}
+
+		// Rota de Detalhe (Exemplo: /groups/123)
+		// Verifica se o caminho começa com "/groups/" e tem mais caracteres (o ID)
+		if len(r.URL.Path) > len("/groups/") && r.URL.Path[:len("/groups/")] == "/groups/" {
+
+			// Tenta extrair o ID do final da rota
+			groupIDStr := r.URL.Path[len("/groups/"):]
+
+			// O ID deve ser um número inteiro, e não deve conter sub-caminhos (ex: /groups/123/members)
+			switch r.Method {
+			case "GET":
+				h.GetGroupDetailsWithID(w, r, groupIDStr)
+			default:
+				http.Error(w, "Método não permitido para detalhes do grupo", http.StatusMethodNotAllowed)
+			}
+			return
+		}
+
+		// Se a URL não for /groups e nem /groups/{id}, retorna 404
+		http.NotFound(w, r)
 	}
 }
 
