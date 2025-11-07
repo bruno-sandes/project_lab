@@ -1,57 +1,40 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
-interface MemberListItem {
-  id: number;
-  name: string;
-  email: string;
-  role: 'Organizador' | 'Participante';
-  avatarUrl: string;
-}
-
-interface Destination {
-  id: number;
-  name: string;
-  location: string;
-  description: string;
-}
-
-interface Voting {
-  id: number;
-  question: string;
-  options: string[];
-  status: 'Aberto' | 'Fechado';
-  votedOption?: string; 
-}
-
-interface Expense {
-  id: number;
-  description: string;
-  amount: number;
-  payerName: string;
-  participantsCount: number; 
-}
+import { CommonModule } from '@angular/common';
+import { forkJoin, catchError, of, switchMap, tap } from 'rxjs';
+import { DestinationDTO, ExpenseDTO, GroupMemberDTO, TravelGroupDetails, VotingDTO } from '../../../groups-dashboard/models/travel_groups';
+import { TravelGroupsService } from '../../../groups-dashboard/services/travel-groups-service';
 
 type TabType = 'members' | 'destinations' | 'votings' | 'expenses';
 
-
 @Component({
   selector: 'app-travel-group-menu',
-  imports: [],
+  imports: [CommonModule], 
   templateUrl: './travel-group-menu.html',
   styleUrl: './travel-group-menu.css'
 })
-export class TravelGroupMenu {
-// Signals para o estado da página
-  groupName = signal<string>('Viagem de Verão para a Europa');
-  organizerName = signal<string>('Sofia Mendes');
+export class TravelGroupMenu implements OnInit {
+  
+  // Dependências
+  private activatedRouteService = inject(ActivatedRoute);
+  private groupsService = inject(TravelGroupsService);
+
+  // Estado
+  groupId = signal<number | null>(null);
+  isLoading = signal<boolean>(true);
+  errorMessage = signal<string | null>(null);
   activeTab = signal<TabType>('members');
 
-  // Signals para os dados (usando arrays vazios como placeholder)
-  members = signal<MemberListItem[]>([]);
-  destinations = signal<Destination[]>([]);
-  votings = signal<Voting[]>([]);
-  expenses = signal<Expense[]>([]);
+  // Dados do Grupo Principal
+  groupName = signal<string>('');
+  organizerName = signal<string>('');
+  
+  // Dados dos Sub-recursos (usando modelos reais)
+  members = signal<GroupMemberDTO[]>([]);
+  destinations = signal<DestinationDTO[]>([]);
+  votings = signal<VotingDTO[]>([]);
+  expenses = signal<ExpenseDTO[]>([]);
+  
 
   // Array de abas para a navegação
   tabs: { key: TabType, label: string }[] = [
@@ -61,36 +44,65 @@ export class TravelGroupMenu {
     { key: 'expenses', label: 'Despesas' },
   ];
   
-  activatedRouteService = inject(ActivatedRoute)
-
 
   ngOnInit(): void {
-    const groupId = this.activatedRouteService.snapshot.paramMap.get('travelGroupId');
-    console.log(`Carregando dados para o Grupo ID: ${groupId}`);
+    const idStr = this.activatedRouteService.snapshot.paramMap.get('travelGroupId');
+    const id = idStr ? parseInt(idStr, 10) : null;
+
+    if (id === null || isNaN(id)) {
+      this.errorMessage.set('ID do grupo inválido na URL.');
+      this.isLoading.set(false);
+      return;
+    }
     
-    this.loadGroupData(groupId);
+    this.groupId.set(id);
+    this.loadGroupData(id);
   }
 
-  loadGroupData(groupId: string | null) {
-    //TO DO: Implementar chamadas a API aqui (GET /groups/{id}/...)
+  /**
+   * Carrega os dados principais do grupo e todos os sub-recursos em paralelo.
+   */
+  loadGroupData(groupId: number): void {
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
 
-    // MOCK DATA 
-    this.members.set([
-      { id: 1, name: 'Sofia Mendes', email: 'sofia@email.com', role: 'Organizador', avatarUrl: '...url1' },
-      { id: 2, name: 'Carlos Pereira', email: 'carlos@email.com', role: 'Participante', avatarUrl: '...url2' },
-      { id: 3, name: 'Ana Silva', email: 'ana@email.com', role: 'Participante', avatarUrl: '...url3' },
-      { id: 4, name: 'Ricardo Almeida', email: 'ricardo@email.com', role: 'Participante', avatarUrl: '...url4' },
-    ]);
+    this.groupsService.getGroupDetails(groupId).pipe(
+      switchMap((details: TravelGroupDetails) => {
+        this.updateGroupHeader(details);
 
-    // Vazio para testar o @empty
-    this.destinations.set([]); 
-    this.votings.set([]);
-    this.expenses.set([]);
+        return forkJoin({
+          members: this.groupsService.listGroupMembers(groupId),
+          destinations: this.groupsService.listDestinations(groupId),
+          votings: this.groupsService.listVotings(groupId),
+          expenses: this.groupsService.listExpenses(groupId),
+        });
+      }),
+      catchError(err => {
+        this.errorMessage.set('Falha ao carregar todos os dados do grupo. Verifique sua conexão e permissões.');
+        console.error('Erro ao carregar dados do grupo:', err);
+        return of(null);
+      }),
+      tap(() => this.isLoading.set(false))
+    ).subscribe((data) => {
+      if (data) {
+        this.members.set(data.members);
+        this.destinations.set(data.destinations);
+        this.votings.set(data.votings);
+        this.expenses.set(data.expenses);
+      }
+    });
+  }
+
+  /**
+   * Atualiza os signals de nome e organizador.
+   */
+  private updateGroupHeader(details: TravelGroupDetails): void {
+    this.groupName.set(details.name);
+    this.organizerName.set(`Usuário ID ${details.creatorId}`);
   }
 
   // Método para trocar de aba
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
   }
-
 }
