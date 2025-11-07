@@ -160,7 +160,7 @@ func main() {
 	mux.HandleFunc("/auth/register", authHandler.RegisterUserHandler)
 	mux.HandleFunc("/auth/login", authHandler.LoginUserHandler)
 	mux.Handle("/profile", middleware.AuthMiddleware(profileRouter(profileHandler)))
-	mux.Handle("/groups", middleware.AuthMiddleware(groupsRouter(travelGroupsHandler)))
+	mux.Handle("/groups/", middleware.AuthMiddleware(groupsRouter(travelGroupsHandler)))
 	mux.Handle("/votings/", middleware.AuthMiddleware(votingsRouter(voteHandler)))
 
 	// Configuração do middleware CORS
