@@ -15,6 +15,26 @@ import (
 	"github.com/rs/cors"
 )
 
+func profileRouter(h *handlers.ProfileHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+
+		if path == "/profile" {
+			switch r.Method {
+			case "GET":
+				h.GetProfileHandler(w, r)
+			case "PATCH":
+				h.UpdateProfileHandler(w, r)
+			default:
+				http.Error(w, "Método não permitido para /profile.", http.StatusMethodNotAllowed)
+			}
+			return
+		}
+
+		http.NotFound(w, r)
+	}
+}
+
 func groupsRouter(h *handlers.TravelGroupHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -127,6 +147,7 @@ func main() {
 	userRepo := repositories.NewUserRepository(db)
 	authService := services.NewAuthService(userRepo)
 	authHandler := handlers.NewAuthHandler(authService)
+	profileHandler := handlers.NewProfileHandler(userRepo)
 
 	travelGroupsRepo := repositories.NewTravelGroupRepository(db)
 	travelGroupsHandler := handlers.NewTravelGroupHandler(travelGroupsRepo)
@@ -138,6 +159,7 @@ func main() {
 
 	mux.HandleFunc("/auth/register", authHandler.RegisterUserHandler)
 	mux.HandleFunc("/auth/login", authHandler.LoginUserHandler)
+	mux.Handle("/profile", middleware.AuthMiddleware(profileRouter(profileHandler)))
 	mux.Handle("/groups", middleware.AuthMiddleware(groupsRouter(travelGroupsHandler)))
 	mux.Handle("/votings/", middleware.AuthMiddleware(votingsRouter(voteHandler)))
 

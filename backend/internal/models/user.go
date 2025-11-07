@@ -14,3 +14,14 @@ type UserLogin struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+// UserProfileResponse corresponde ao DTO retornado por GET /profile
+type UserProfileResponse struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+// UserProfileUpdateRequest corresponde ao payload de PATCH /profile
+type UserProfileUpdateRequest struct {
+	Name string `json:"name"`
+}
