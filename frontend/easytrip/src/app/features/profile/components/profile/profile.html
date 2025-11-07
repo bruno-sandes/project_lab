@@ -3,6 +3,10 @@
         <h2 class="main-title">Meu Perfil</h2>
         <p class="subtitle">Gerencie suas informações e configurações.</p>
 
+        @if (isLoading() && profileForm.pristine) {
+            <p class="loading-message">Carregando dados do perfil...</p>
+        }
+
         <div class="avatar-section">
             <div class="avatar-placeholder">
                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="default Profile">
@@ -13,6 +17,13 @@
 
         <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
             
+            @if (successMessage()) {
+                <div class="alert success">{{ successMessage() }}</div>
+            }
+            @if (errorMessage()) {
+                <div class="alert error">{{ errorMessage() }}</div>
+            }
+
             <div class="form-group">
                 <label for="name">Nome</label>
                 <input 
@@ -47,9 +58,13 @@
             <button 
                 type="submit" 
                 class="save-button" 
-                [disabled]="profileForm.invalid || profileForm.pristine"
+                [disabled]="profileForm.invalid || profileForm.pristine || isLoading()"
             >
-                Salvar Alterações
+                @if (isLoading() && !profileForm.pristine) {
+                    Salvando...
+                } @else {
+                    Salvar Alterações
+                }
             </button>
         </form>
     </div>
