@@ -163,7 +163,77 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TravelGroupDetails'
+        "404":
+          description: Grupo não encontrado ou usuário não autorizado
+  /groups/{id}/members:
+    get:
+      tags: [Grupos de Viagem]
+      summary: Lista todos os membros de um grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lista de membros
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupMemberDTO'
+        "401":
+          description: Não autorizado (Token inválido ou não-membro)
+    post:
+      tags: [Grupos de Viagem]
+      summary: Adiciona um membro ao grupo (via ID do usuário)
+      description: Requer permissão de administrador/criador para o grupo.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberAddRequest'
+      responses:
+        "204":
+          description: Membro adicionado com sucesso (ou já existia)
+        "401":
+          description: Não autorizado (Token inválido ou sem permissão)
+        "422":
+          description: Entidade não processável (UserID inválido)
   /groups/{id}/destinations:
+    get:
+      tags: [Destinos]
+      summary: Lista todos os destinos sugeridos para um grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lista de destinos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DestinationDTO'
     post:
       tags: [Destinos]
       summary: Adiciona um destino ao grupo
@@ -180,23 +250,20 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: Cristo Redentor
-                location:
-                  type: string
-                  example: Rio de Janeiro, RJ
-                description:
-                  type: string
-                  example: Ponto turístico famoso com vista panorâmica
+              $ref: '#/components/schemas/DestinationCreateRequest'
       responses:
         "201":
-          description: Destino adicionado
+          description: Destino adicionado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DestinationDTO'
+        "422":
+          description: Entidade não processável (Nome do destino vazio)
+  /groups/{id}/votings:
     get:
-      tags: [Destinos]
-      summary: Lista destinos de um grupo
+      tags: [Votações]
+      summary: Lista todas as votações de um grupo
       security:
         - bearerAuth: []
       parameters:
@@ -207,7 +274,115 @@ paths:
             type: integer
       responses:
         "200":
-          description: Lista de destinos
+          description: Lista de votações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VotingDTO'
+    post:
+      tags: [Votações]
+      summary: Cria uma nova votação para o grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VotingCreateRequest'
+      responses:
+        "201":
+          description: Votação criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: ID da nova votação.
+  /votings/{id}/vote:
+    post:
+      tags: [Votações]
+      summary: Registra o voto do usuário logado em uma votação
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID da votação.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoteRequest'
+      responses:
+        "201":
+          description: Voto registrado com sucesso
+        "409":
+          description: Conflito (Usuário já votou nesta votação)
+        "422":
+          description: Opção de voto inválida ou ausente
+  /groups/{id}/expenses:
+    get:
+      tags: [Despesas]
+      summary: Lista todas as despesas registradas no grupo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lista de despesas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseDTO'
+    post:
+      tags: [Despesas]
+      summary: Cria uma nova despesa e registra o rateio
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCreateRequest'
+      responses:
+        "201":
+          description: Despesa e rateio registrados com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseResponse'
+        "422":
+          description: Dados da despesa inválidos (valor, pagador ou participantes ausentes)
+
 components:
   securitySchemes:
     bearerAuth:
@@ -215,6 +390,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    # AUTENTICAÇÃO E PERFIL (EXISTENTES)
     UserLoginRequest:
       type: object
       properties:
@@ -255,6 +431,8 @@ components:
           type: string
           format: email
           example: sophia.clark@email.com
+    
+    # GRUPOS (EXISTENTES)
     TravelGroupCreateRequest:
       type: object
       required:
@@ -300,7 +478,6 @@ components:
         created_at:
           type: string
           format: date-time
-          nullable: true
     TravelGroupListItem:
       type: object
       properties:
@@ -345,3 +522,156 @@ components:
         created_at:
           type: string
           format: date-time
+
+    # MEMBROS (NOVOS)
+    GroupMemberDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [Organizador, Participante]
+          example: Organizador
+    MemberAddRequest:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: integer
+          description: ID do usuário a ser adicionado ao grupo.
+          example: 5
+          
+    # DESTINOS (NOVOS)
+    DestinationDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+    DestinationCreateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Cristo Redentor
+        location:
+          type: string
+          example: Rio de Janeiro, RJ
+        description:
+          type: string
+          example: Ponto turístico famoso com vista panorâmica
+          
+    # VOTAÇÕES (NOVOS)
+    VotingDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        totalVotes:
+          type: integer
+        userVote:
+          type: string
+          nullable: true
+          description: Opção que o usuário logado escolheu (null se não votou).
+        createdAt:
+          type: string
+          format: date-time
+    VotingCreateRequest:
+      type: object
+      required:
+        - question
+        - options
+      properties:
+        question:
+          type: string
+          example: Qual o próximo destino?
+        options:
+          type: array
+          items:
+            type: string
+          minItems: 2
+          example: [Nova York, Londres, Paris]
+    VoteRequest:
+      type: object
+      required:
+        - selectedOption
+      properties:
+        selectedOption:
+          type: string
+          description: A opção exata escolhida para a votação.
+          example: Paris
+          
+    # DESPESAS (NOVOS)
+    ExpenseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: number
+          format: float
+          example: 45.50
+        payerId:
+          type: integer
+        payerName:
+          type: string
+        participantsIds:
+          type: array
+          items:
+            type: integer
+          description: IDs dos usuários que participam do rateio.
+        participantsCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    ExpenseCreateRequest:
+      type: object
+      required:
+        - description
+        - amount
+        - payerId
+        - participantIds
+      properties:
+        description:
+          type: string
+          example: Jantar de boas-vindas
+        amount:
+          type: number
+          format: float
+          example: 120.00
+        payerId:
+          type: integer
+          description: ID do usuário que pagou a despesa.
+          example: 1
+        participantIds:
+          type: array
+          items:
+            type: integer
+          description: Lista de IDs dos membros que participarão do rateio.
+          example: [1, 5, 7]
+    ExpenseResponse:
+      allOf:
+        - $ref: '#/components/schemas/ExpenseDTO'

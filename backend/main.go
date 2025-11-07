@@ -9,6 +9,7 @@ import (
 	"project_lab/internal/middleware"
 	"project_lab/internal/repositories"
 	"project_lab/internal/services"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
@@ -17,37 +18,92 @@ import (
 func groupsRouter(h *handlers.TravelGroupHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		// Rota de Listagem/Criação (Exatamente /groups)
-		if r.URL.Path == "/groups" || r.URL.Path == "/groups/" {
+		pathSegments := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+
+		if len(pathSegments) == 1 && pathSegments[0] == "groups" {
 			switch r.Method {
 			case "GET":
-				h.ListGroups(w, r) // GET /groups -> Listar
+				h.ListGroups(w, r)
 			case "POST":
-				h.CreateGroupHandler(w, r) // POST /groups -> Criar
+				h.CreateGroupHandler(w, r)
 			default:
 				http.Error(w, "Método não permitido para /groups", http.StatusMethodNotAllowed)
 			}
 			return
 		}
 
-		// Rota de Detalhe (Exemplo: /groups/123)
-		// Verifica se o caminho começa com "/groups/" e tem mais caracteres (o ID)
-		if len(r.URL.Path) > len("/groups/") && r.URL.Path[:len("/groups/")] == "/groups/" {
+		if len(pathSegments) >= 2 && pathSegments[0] == "groups" {
+			groupIDStr := pathSegments[1]
 
-			// Tenta extrair o ID do final da rota
-			groupIDStr := r.URL.Path[len("/groups/"):]
+			if len(pathSegments) == 3 {
+				resource := pathSegments[2]
 
-			// O ID deve ser um número inteiro, e não deve conter sub-caminhos (ex: /groups/123/members)
-			switch r.Method {
-			case "GET":
-				h.GetGroupDetailsWithID(w, r, groupIDStr)
-			default:
-				http.Error(w, "Método não permitido para detalhes do grupo", http.StatusMethodNotAllowed)
+				switch resource {
+				case "members":
+					if r.Method == "GET" {
+						h.ListGroupMembersHandler(w, r, groupIDStr)
+						return
+					}
+				case "destinations":
+					switch r.Method {
+					case "GET":
+						h.ListGroupDestinationsHandler(w, r, groupIDStr)
+					case "POST":
+						h.CreateDestinationHandler(w, r, groupIDStr)
+					default:
+						http.Error(w, "Método não permitido para /destinations", http.StatusMethodNotAllowed)
+					}
+					return
+				case "votings":
+					switch r.Method {
+					case "GET":
+						h.ListGroupVotingsHandler(w, r, groupIDStr)
+					case "POST":
+						h.CreateVotingHandler(w, r, groupIDStr)
+					default:
+						http.Error(w, "Método não permitido para /votings", http.StatusMethodNotAllowed)
+					}
+					return
+				case "expenses":
+					if r.Method == "GET" {
+						h.ListGroupExpensesHandler(w, r, groupIDStr)
+						return
+					}
+					// A lógica de POST para expenses (futuro) entraria aqui
+				}
+				http.Error(w, "Recurso ou Método não permitido.", http.StatusMethodNotAllowed)
+				return
 			}
-			return
+
+			if len(pathSegments) == 2 {
+				if r.Method == "GET" {
+					h.GetGroupDetailsWithID(w, r, groupIDStr)
+					return
+				}
+				http.Error(w, "Método não permitido para detalhes do grupo", http.StatusMethodNotAllowed)
+				return
+			}
 		}
 
-		// Se a URL não for /groups e nem /groups/{id}, retorna 404
+		http.NotFound(w, r)
+	}
+}
+
+func votingsRouter(h *handlers.VoteHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		pathSegments := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+
+		// Esperamos a rota /votings/{id}/vote
+		if len(pathSegments) == 3 && pathSegments[0] == "votings" && pathSegments[2] == "vote" {
+			votingIDStr := pathSegments[1]
+
+			if r.Method == "POST" {
+				h.VoteHandler(w, r, votingIDStr)
+				return
+			}
+		}
+
 		http.NotFound(w, r)
 	}
 }
@@ -75,11 +131,15 @@ func main() {
 	travelGroupsRepo := repositories.NewTravelGroupRepository(db)
 	travelGroupsHandler := handlers.NewTravelGroupHandler(travelGroupsRepo)
 
+	voteRepo := repositories.NewVoteRepository(db)
+	voteHandler := handlers.NewVoteHandler(voteRepo, travelGroupsRepo) // Passa travelGroupsRepo para validações
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/auth/register", authHandler.RegisterUserHandler)
 	mux.HandleFunc("/auth/login", authHandler.LoginUserHandler)
 	mux.Handle("/groups", middleware.AuthMiddleware(groupsRouter(travelGroupsHandler)))
+	mux.Handle("/votings/", middleware.AuthMiddleware(votingsRouter(voteHandler)))
 
 	// Configuração do middleware CORS
 	c := cors.New(cors.Options{
