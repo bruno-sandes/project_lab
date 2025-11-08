@@ -1,0 +1,60 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content-wrapper" (click)="$event.stopPropagation()">
+        <button class="modal-close-btn" (click)="onClose()">×</button>
+        <div class="modal-card">
+            <h2 class="main-title">Registrar Nova Despesa</h2>
+            <p class="subtitle">Quem pagou e quem deve.</p>
+
+            @if (errorMessage()) {
+            <div class="alert error">{{ errorMessage() }}</div>
+            }
+            <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+
+                <div class="form-group">
+                    <label for="description">Descrição da Despesa</label>
+                    <input id="description" type="text" formControlName="description"
+                        placeholder="Ex: Hotel em Berlim, Jantar em Paris">
+                    @if (expenseForm.controls.description.invalid && expenseForm.controls.description.touched) {
+                    <div class="error-message">A descrição é obrigatória (mín. 3 caracteres).</div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Valor (R$)</label>
+                    <input id="amount" type="number" formControlName="amount" step="0.01" placeholder="0.00">
+                    @if (expenseForm.controls.amount.invalid && expenseForm.controls.amount.touched) {
+                    <div class="error-message">O valor deve ser um número positivo.</div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="payer">Quem Pagou? (Apenas um pagador)</label>
+                    <select id="payer" formControlName="payerId">
+                        @for (member of members; track member.userId) {
+                        <option [ngValue]="member.userId">{{ member.name }}</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Participantes (Dividir entre)</label>
+                    <div formArrayName="participantIds" class="participants-checkboxes">
+                        @for (control of participantIdsArray.controls; track i; let i = $index) {
+                        <label class="checkbox-container">
+                            <input type="checkbox" [formControl]="control">
+                            {{ members[i].name }}
+                            <span class="checkmark"></span>
+                        </label>
+                        }
+                    </div>
+                    @if (!hasSelectedParticipants && participantIdsArray.length > 0 ) {
+                    <div class="error-message">Selecione pelo menos um participante.</div>
+                    }
+                </div>
+                
+                <button type="submit" class="save-button"
+                    [disabled]="isFormInvalid || isLoading()">+ Criar</button>
+            </form>
+        </div>
+    </div>
+</div>

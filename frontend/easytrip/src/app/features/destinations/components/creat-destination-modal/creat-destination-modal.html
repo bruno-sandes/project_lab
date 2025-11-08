@@ -1,0 +1,68 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content-wrapper" (click)="$event.stopPropagation()">
+        <button class="modal-close-btn" (click)="onClose()">×</button>
+        <div class="modal-card">
+            <h2 class="main-title">Sugerir Novo Destino</h2>
+            <p class="subtitle">Adicione um local de interesse para a viagem.</p>
+
+            @if (errorMessage()) {
+                <div class="alert error">{{ errorMessage() }}</div>
+            }
+
+            <form [formGroup]="destinationForm" (ngSubmit)="onSubmit()">
+                
+                <div class="form-group">
+                    <label for="name">Nome do Local</label>
+                    <input 
+                        id="name" 
+                        type="text" 
+                        formControlName="name"
+                        placeholder="Ex: Torre Eiffel, Museu do Louvre"
+                    >
+                    @if (nameControl.invalid && nameControl.touched) {
+                        <div class="error-message">
+                            Nome é obrigatório e deve ter no mínimo 3 caracteres.
+                        </div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Localização (Cidade/País)</label>
+                    <input 
+                        id="location" 
+                        type="text" 
+                        formControlName="location"
+                        placeholder="Ex: Paris, França"
+                    >
+                    @if (locationControl.invalid && locationControl.touched) {
+                        <div class="error-message">
+                            Localização é obrigatória.
+                        </div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descrição (Opcional)</label>
+                    <textarea
+                        id="description" 
+                        formControlName="description"
+                        rows="3"
+                        placeholder="Detalhes sobre por que este local deve ser visitado."
+                    ></textarea>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="save-button" 
+                    [disabled]="destinationForm.invalid || isLoading()"
+                >
+                    @if (isLoading()) {
+                        Salvando...
+                    } @else {
+                        Sugerir Destino
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
