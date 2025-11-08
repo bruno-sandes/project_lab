@@ -1,0 +1,69 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content-wrapper" (click)="$event.stopPropagation()">
+        <button class="modal-close-btn" (click)="onClose()">×</button>
+        <div class="modal-card">
+            <h2 class="main-title">Criar Nova Votação</h2>
+            <p class="subtitle">Deixe o grupo decidir!</p>
+
+            @if (errorMessage()) {
+                <div class="alert error">{{ errorMessage() }}</div>
+            }
+
+            <form [formGroup]="votingForm" (ngSubmit)="onSubmit()">
+                
+                <div class="form-group">
+                    <label for="question">Pergunta da Votação</label>
+                    <input 
+                        id="question" 
+                        type="text" 
+                        formControlName="question"
+                        placeholder="Ex: Qual cidade devemos visitar primeiro?"
+                    >
+                    @if (questionControl.invalid && questionControl.touched) {
+                        <div class="error-message">
+                            A pergunta é obrigatória (min. 5 caracteres).
+                        </div>
+                    }
+                </div>
+                
+                <div class="form-group options-group">
+                    <label>Opções (Mínimo de 2)</label>
+                    
+                    @for (control of optionsArray.controls; track i; let i = $index) {
+                        <div class="option-row">
+                            <input 
+                                type="text" 
+                                [formControl]="control"
+                                placeholder="Opção {{ i + 1 }}"
+                            >
+                            @if (optionsArray.length > 2) {
+                                <button type="button" class="btn-remove" (click)="removeOption(i)">-</button>
+                            }
+                        </div>
+                        @if (control.invalid && control.touched) {
+                            <div class="error-message small">A opção {{ i + 1 }} é obrigatória.</div>
+                        }
+                    }
+
+                    <button type="button" class="btn-add-option" (click)="addOption()">+ Adicionar Opção</button>
+                    
+                    @if (optionsArray.length < 2) {
+                        <div class="error-message">Adicione pelo menos 2 opções.</div>
+                    }
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="save-button" 
+                    [disabled]="votingForm.invalid || isLoading()"
+                >
+                    @if (isLoading()) {
+                        Criando...
+                    } @else {
+                        Criar Votação
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content-wrapper" (click)="$event.stopPropagation()">
+        <button class="modal-close-btn" (click)="onClose()">×</button>
+        <div class="modal-card">
+            <h2 class="main-title">Votar em:</h2>
+            <p class="subtitle">{{ voting.question }}</p>
+
+            @if (errorMessage()) {
+                <div class="alert error">{{ errorMessage() }}</div>
+            }
+
+            <form>
+                
+                <div class="form-group">
+                    <label for="options">Escolha uma Opção</label>
+                    <select id="options" [formControl]="voteControl">
+                        <option value="" disabled>-- Selecione uma opção --</option>
+                        @for (option of voting.options; track option) {
+                            <option [value]="option">{{ option }}</option>
+                        }
+                    </select>
+                    @if (voteControl.invalid && voteControl.touched) {
+                        <div class="error-message">A escolha da opção é obrigatória.</div>
+                    }
+                </div>
+                
+                <button 
+                (click)="onSubmit()"
+                class="save-button" 
+                    [disabled]="voteControl.invalid || isLoading()"
+                >
+                    @if (isLoading()) {
+                        Registrando Voto...
+                    } @else {
+                        Registrar Voto
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

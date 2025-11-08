@@ -154,3 +154,123 @@
 .btn-secondary:hover {
     background-color: #f0f0f0;
 }
+
+/* --- Estilos para Botões de Ação na Sessão (HEADER) --- */
+.section-header-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0; /* Linha sutil para separar o cabeçalho */
+    padding-bottom: 15px;
+}
+
+.section-header-with-button h2 {
+    margin: 0;
+}
+
+/* --- Estilos Comuns para Cards de Item (Destino, Votação, Despesa) --- */
+.item-card {
+    background-color: #fcfcfc; /* Fundo levemente fora do branco puro */
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 15px; /* Espaçamento entre os cards */
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.item-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-color: #d0d0d0;
+}
+
+.item-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.item-card p {
+    font-size: 14px;
+    color: #555;
+    margin: 4px 0;
+}
+
+/* --- Estilos Específicos para Destinos --- */
+.destination-card h3 {
+    color: #007bff; /* Azul primário */
+}
+.destination-card .location {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 8px;
+}
+.destination-card .description {
+    font-style: italic;
+    color: #888;
+    border-left: 3px solid #007bff50;
+    padding-left: 10px;
+}
+
+/* --- Estilos Específicos para Votações --- */
+.voting-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.voting-card h3 {
+    color: #28a745; /* Verde para votações */
+}
+.voting-card p {
+    font-size: 14px;
+}
+.voting-card .voted-tag {
+    background-color: #e2f0e8;
+    color: #28a745;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    align-self: flex-start; /* Alinha o tag ao início */
+}
+.voting-card .btn-secondary {
+    align-self: flex-end; /* Alinha o botão para a direita/fim */
+    padding: 8px 15px;
+    font-size: 14px;
+}
+
+/* --- Estilos Específicos para Despesas --- */
+.expense-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff8f8; /* Fundo sutil de despesa */
+    border-left: 5px solid #dc3545; /* Linha lateral vermelha */
+    border: 1px solid #f5c6cb;
+}
+.expense-card h3 {
+    flex-basis: 100%; /* Ocupa toda a linha */
+    color: #dc3545; /* Vermelho para despesas */
+    margin-bottom: 10px;
+}
+.expense-card .amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: #dc3545;
+    order: 1; /* Posição 1 */
+}
+.expense-card p {
+    flex-basis: auto; /* Ocupa espaço mínimo */
+    color: #6c757d;
+    font-size: 13px;
+    margin: 0 10px 0 0;
+    order: 2; /* Posição 2 */
+}
+/* Estilo para garantir que o count fique visível */
+.expense-card p:last-of-type {
+    margin-right: 0;
+}

@@ -56,7 +56,13 @@
 
             @if (activeTab() === 'destinations') {
                 <div class="section-container">
-                    <h2>Destinos Planejados</h2>
+                    <div class="section-header-with-button">
+                        <h2>Destinos Planejados</h2>
+                        <button class="btn btn-primary" (click)="openModal('destination')">
+                            + Sugerir Destino
+                        </button>
+                    </div>
+                    
                     @for (destination of destinations(); track destination.id) {
                         <div class="item-card destination-card">
                             <h3>{{ destination.name }}</h3>
@@ -65,14 +71,19 @@
                         </div> 
                     } @empty {
                         <p class="empty-state">Nenhum destino foi sugerido ainda.</p>
-                        <button class="btn btn-primary">Adicionar Destino</button>
                     }
                 </div>
             }
             
             @if (activeTab() === 'votings') {
                 <div class="section-container">
-                    <h2>Votações Ativas</h2>
+                    <div class="section-header-with-button">
+                        <h2>Votações Ativas</h2>
+                        <button class="btn btn-primary" (click)="openModal('voting')">
+                            + Criar Votação
+                        </button>
+                    </div>
+
                     @for (voting of votings(); track voting.id) {
                         <div class="item-card voting-card">
                             <h3>{{ voting.question }}</h3>
@@ -81,19 +92,24 @@
                             @if (voting.userVote) {
                                 <span class="voted-tag">Seu voto: {{ voting.userVote }}</span>
                             } @else {
-                                <button class="btn btn-secondary">Votar</button>
+                                <button class="btn btn-secondary" (click)="openVoteModal(voting)">Votar</button>
                             }
                         </div> 
                     } @empty {
                         <p class="empty-state">Não há votações ativas ou passadas.</p>
-                        <button class="btn btn-primary">Criar Votação</button>
                     }
                 </div>
             }
             
             @if (activeTab() === 'expenses') {
                 <div class="section-container">
-                    <h2>Despesas do Grupo</h2>
+                    <div class="section-header-with-button">
+                        <h2>Despesas do Grupo</h2>
+                        <button class="btn btn-primary" (click)="openModal('expense')">
+                            + Registrar Despesa
+                        </button>
+                    </div>
+
                     @for (expense of expenses(); track expense.id) {
                         <div class="item-card expense-card">
                             <h3>{{ expense.description }}</h3>
@@ -103,10 +119,44 @@
                         </div> 
                     } @empty {
                         <p class="empty-state">Nenhuma despesa foi registrada.</p>
-                        <button class="btn btn-primary">Registrar Despesa</button>
                     }
                 </div>
             }
         </div>
     }
 </div>
+
+@if (showCreateDestination()) {
+    <app-creat-destination-modal
+        [groupId]="groupId()!"
+        (close)="closeAllModals()"
+        (destinationCreated)="handleCreationSuccess()"
+    />
+}
+
+@if (showCreateVoting()) {
+    <app-create-voting-modal
+        [groupId]="groupId()!"
+        (close)="closeAllModals()"
+        (votingCreated)="handleCreationSuccess()"
+    />
+}
+
+@if (showCreateExpense()) {
+    <app-create-expenses-modal
+        [groupId]="groupId()!"
+        [members]="members()"
+        [loggedUserId]="loggedUserId()"
+        (close)="closeAllModals()"
+        (expenseCreated)="handleCreationSuccess()"
+    />
+} 
+
+@if (showVoteModal() && selectedVoting()) {
+    <app-vote-modal
+        [groupId]="groupId()!"
+        [voting]="selectedVoting()!"
+        (close)="closeAllModals()"
+        (voteSubmitted)="handleCreationSuccess()"
+    />
+}

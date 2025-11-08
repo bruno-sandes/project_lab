@@ -4,32 +4,45 @@ import { CommonModule } from '@angular/common';
 import { forkJoin, catchError, of, switchMap, tap } from 'rxjs';
 import { DestinationDTO, ExpenseDTO, GroupMemberDTO, TravelGroupDetails, VotingDTO } from '../../../groups-dashboard/models/travel_groups';
 import { TravelGroupsService } from '../../../groups-dashboard/services/travel-groups-service';
+import { AuthService } from '../../../login/service/login-service';
+import { CreatDestinationModal } from "../../../destinations/components/creat-destination-modal/creat-destination-modal";
+import { CreateVotingModal } from "../../../voting/components/create-voting-modal/create-voting-modal";
+import { CreateExpensesModal } from "../../../expenses/components/create-expenses-modal/create-expenses-modal";
+import { VoteModal } from '../../../voting/components/vote-modal/vote-modal';
 
 type TabType = 'members' | 'destinations' | 'votings' | 'expenses';
 
 @Component({
   selector: 'app-travel-group-menu',
-  imports: [CommonModule], 
+  imports: [CommonModule, CreatDestinationModal, CreateVotingModal, CreateExpensesModal, VoteModal], 
   templateUrl: './travel-group-menu.html',
   styleUrl: './travel-group-menu.css'
 })
 export class TravelGroupMenu implements OnInit {
   
-  // Dependências
   private activatedRouteService = inject(ActivatedRoute);
   private groupsService = inject(TravelGroupsService);
+  private authService = inject(AuthService); 
 
   // Estado
   groupId = signal<number | null>(null);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
   activeTab = signal<TabType>('members');
+  loggedUserId = signal<number>(0);
 
+  // Estado das Modais
+  showCreateDestination = signal(false);
+  showCreateVoting = signal(false);
+  showCreateExpense = signal(false);
+  showVoteModal = signal(false); 
+  selectedVoting = signal<VotingDTO | null>(null); 
+  
   // Dados do Grupo Principal
   groupName = signal<string>('');
   organizerName = signal<string>('');
   
-  // Dados dos Sub-recursos (usando modelos reais)
+  // Dados dos Sub-recursos
   members = signal<GroupMemberDTO[]>([]);
   destinations = signal<DestinationDTO[]>([]);
   votings = signal<VotingDTO[]>([]);
@@ -46,6 +59,7 @@ export class TravelGroupMenu implements OnInit {
   
 
   ngOnInit(): void {
+
     const idStr = this.activatedRouteService.snapshot.paramMap.get('travelGroupId');
     const id = idStr ? parseInt(idStr, 10) : null;
 
@@ -57,11 +71,9 @@ export class TravelGroupMenu implements OnInit {
     
     this.groupId.set(id);
     this.loadGroupData(id);
+    
   }
 
-  /**
-   * Carrega os dados principais do grupo e todos os sub-recursos em paralelo.
-   */
   loadGroupData(groupId: number): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -93,16 +105,41 @@ export class TravelGroupMenu implements OnInit {
     });
   }
 
-  /**
-   * Atualiza os signals de nome e organizador.
-   */
   private updateGroupHeader(details: TravelGroupDetails): void {
     this.groupName.set(details.name);
-    this.organizerName.set(`Usuário ID ${details.creatorId}`);
-  }
+ }
 
-  // Método para trocar de aba
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
+  }
+
+  openModal(modalType: 'destination' | 'voting' | 'expense'): void {
+    if (modalType === 'destination') {
+      this.showCreateDestination.set(true);
+    } else if (modalType === 'voting') {
+      this.showCreateVoting.set(true);
+    } else if (modalType === 'expense') {
+      this.showCreateExpense.set(true);
+    }
+  }
+
+  openVoteModal(voting: VotingDTO): void {
+    this.selectedVoting.set(voting);
+    this.showVoteModal.set(true);
+  }
+
+  closeAllModals(): void {
+    this.showCreateDestination.set(false);
+    this.showCreateVoting.set(false);
+    this.showCreateExpense.set(false);
+    this.showVoteModal.set(false);
+    this.selectedVoting.set(null); // Limpa o estado
+  }
+
+  handleCreationSuccess(): void {
+    this.closeAllModals();
+    if (this.groupId()) {
+      this.loadGroupData(this.groupId()!); 
+    }
   }
 }
