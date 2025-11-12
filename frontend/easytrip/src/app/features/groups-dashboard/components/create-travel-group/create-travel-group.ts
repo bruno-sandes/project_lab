@@ -55,9 +55,7 @@ export class CreateTravelGroup {
         this.successMessage.set('Viagem criada com sucesso!');
         this.tripForm.reset();
         
-        setTimeout(() => {
-          this.navigationService.toGroupsDashboard(); 
-        }, 2000);
+       
       },
       error: (err: HttpErrorResponse) => {
         const message = err.error?.message || err.message || 'Erro desconhecido ao criar viagem.';
