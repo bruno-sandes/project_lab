@@ -19,6 +19,27 @@ func NewTravelGroupHandler(repo repositories.TravelGroupRepository) *TravelGroup
 	return &TravelGroupHandler{repo: repo}
 }
 
+// checkGroupMembership é uma função auxiliar interna para verificar a autorização (Mitigação A01).
+// Ela reutiliza o GetGroupDetails para garantir que o usuário é membro.
+func (h *TravelGroupHandler) checkGroupMembership(w http.ResponseWriter, r *http.Request, groupID int) (userID int, ok bool) {
+	userIDValue := r.Context().Value(middleware.UserIDKey)
+	userID, ok = userIDValue.(int)
+	if !ok {
+		http.Error(w, "Não autorizado. ID do usuário não encontrado.", http.StatusUnauthorized)
+		return 0, false
+	}
+
+	// MITIGAÇÃO A01: Verifica se o usuário tem permissão para acessar este groupID
+	_, err := h.repo.GetGroupDetails(groupID, userID)
+	if err != nil {
+		// Se GetGroupDetails falhar, o usuário não é membro ou o grupo não existe.
+		http.Error(w, "Grupo não encontrado ou não autorizado", http.StatusNotFound)
+		return userID, false
+	}
+
+	return userID, true
+}
+
 func (h *TravelGroupHandler) CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req models.TravelGroupCreateRequest
@@ -93,25 +114,19 @@ func (h *TravelGroupHandler) ListGroups(w http.ResponseWriter, r *http.Request) 
 
 	groups, err := h.repo.ListGroupsByUserId(userID)
 	if err != nil {
-		// Loga o erro detalhado no backend
 		fmt.Printf("Erro ao buscar grupos para userID %d: %v\n", userID, err)
-
-		// Retorna um erro genérico para o frontend
 		http.Error(w, "Erro interno ao buscar grupos de viagem.", http.StatusInternalServerError)
 		return
 	}
 
-	// Define o cabeçalho para JSON.
 	w.Header().Set("Content-Type", "application/json")
-
-	// Resposta 200 OK (implícito pelo Encoder ou explícito com w.WriteHeader(http.StatusOK))
-
-	// Codifica o resultado (slice de TravelGroupListItem) para JSON e envia.
 	if err := json.NewEncoder(w).Encode(groups); err != nil {
 		http.Error(w, "Erro ao serializar resposta JSON.", http.StatusInternalServerError)
 		return
 	}
 }
+
+// GetGroupDetailsWithID (MITIGADO)
 func (h *TravelGroupHandler) GetGroupDetailsWithID(w http.ResponseWriter, r *http.Request, groupIDStr string) {
 
 	groupID, err := strconv.Atoi(groupIDStr)
@@ -120,20 +135,15 @@ func (h *TravelGroupHandler) GetGroupDetailsWithID(w http.ResponseWriter, r *htt
 		return
 	}
 
-	// Obter o ID do usuário autenticado (lógica de autorização)
-	userIDValue := r.Context().Value(middleware.UserIDKey)
-	userID, ok := userIDValue.(int)
+	// MITIGAÇÃO A01: Verifica se o usuário é membro ANTES de buscar detalhes.
+	userID, ok := h.checkGroupMembership(w, r, groupID)
 	if !ok {
-		http.Error(w, "Não autorizado. ID do usuário não encontrado.", http.StatusUnauthorized)
-		return
+		return // O erro já foi enviado pela função auxiliar
 	}
 
 	details, err := h.repo.GetGroupDetails(groupID, userID)
 	if err != nil {
-		if err.Error() == "grupo não encontrado ou usuário não autorizado a visualizá-lo" {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
+		// Este erro não deve ocorrer se o checkGroupMembership passou, mas é uma boa defesa.
 		fmt.Printf("Erro ao buscar detalhes do grupo %d: %v\n", groupID, err)
 		http.Error(w, "Erro interno ao buscar detalhes do grupo.", http.StatusInternalServerError)
 		return
@@ -143,6 +153,7 @@ func (h *TravelGroupHandler) GetGroupDetailsWithID(w http.ResponseWriter, r *htt
 	json.NewEncoder(w).Encode(details)
 }
 
+// ListGroupMembersHandler (MITIGADO)
 func (h *TravelGroupHandler) ListGroupMembersHandler(w http.ResponseWriter, r *http.Request, groupIDStr string) {
 
 	groupID, err := strconv.Atoi(groupIDStr)
@@ -151,10 +162,10 @@ func (h *TravelGroupHandler) ListGroupMembersHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	// Nota: A validação de se o USUÁRIO LOGADO é membro é feita no GetGroupDetails.
-	// Aqui, podemos assumir que se o frontend chegou até aqui, ele deve ter acesso.
-	// Para segurança total, seria bom checar a permissão aqui também. Por enquanto,
-	// focamos na listagem dos dados.
+	// MITIGAÇÃO A01 (IDOR): Verifica se o usuário é membro ANTES de listar.
+	if _, ok := h.checkGroupMembership(w, r, groupID); !ok {
+		return // Bloqueia se não for membro
+	}
 
 	members, err := h.repo.ListGroupMembers(groupID)
 	if err != nil {
@@ -167,6 +178,7 @@ func (h *TravelGroupHandler) ListGroupMembersHandler(w http.ResponseWriter, r *h
 	json.NewEncoder(w).Encode(members)
 }
 
+// ListGroupDestinationsHandler (MITIGADO)
 func (h *TravelGroupHandler) ListGroupDestinationsHandler(w http.ResponseWriter, r *http.Request, groupIDStr string) {
 
 	groupID, err := strconv.Atoi(groupIDStr)
@@ -175,9 +187,10 @@ func (h *TravelGroupHandler) ListGroupDestinationsHandler(w http.ResponseWriter,
 		return
 	}
 
-	// Nota: O check de autorização (se o usuário logado é membro) deve idealmente ser feito
-	// por um middleware ou no repository/service para esta rota também.
-	// Por simplicidade, estamos focando no CRUD do recurso, mas lembre-se da segurança.
+	// MITIGAÇÃO A01 (IDOR): Verifica se o usuário é membro ANTES de listar.
+	if _, ok := h.checkGroupMembership(w, r, groupID); !ok {
+		return // Bloqueia se não for membro
+	}
 
 	destinations, err := h.repo.ListGroupDestinations(groupID)
 	if err != nil {
@@ -190,6 +203,7 @@ func (h *TravelGroupHandler) ListGroupDestinationsHandler(w http.ResponseWriter,
 	json.NewEncoder(w).Encode(destinations)
 }
 
+// ListGroupVotingsHandler (MITIGADO)
 func (h *TravelGroupHandler) ListGroupVotingsHandler(w http.ResponseWriter, r *http.Request, groupIDStr string) {
 
 	groupID, err := strconv.Atoi(groupIDStr)
@@ -198,11 +212,10 @@ func (h *TravelGroupHandler) ListGroupVotingsHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	userIDValue := r.Context().Value(middleware.UserIDKey)
-	userID, ok := userIDValue.(int)
+	// MITIGAÇÃO A01 (IDOR): Verifica se o usuário é membro ANTES de listar.
+	userID, ok := h.checkGroupMembership(w, r, groupID)
 	if !ok {
-		http.Error(w, "Não autorizado. ID do usuário não encontrado.", http.StatusUnauthorized)
-		return
+		return // Bloqueia se não for membro
 	}
 
 	votings, err := h.repo.ListGroupVotings(groupID, userID)
@@ -216,12 +229,18 @@ func (h *TravelGroupHandler) ListGroupVotingsHandler(w http.ResponseWriter, r *h
 	json.NewEncoder(w).Encode(votings)
 }
 
+// ListGroupExpensesHandler (MITIGADO)
 func (h *TravelGroupHandler) ListGroupExpensesHandler(w http.ResponseWriter, r *http.Request, groupIDStr string) {
 
 	groupID, err := strconv.Atoi(groupIDStr)
 	if err != nil {
 		http.Error(w, "ID do grupo inválido.", http.StatusBadRequest)
 		return
+	}
+
+	// MITIGAÇÃO A01 (IDOR): Verifica se o usuário é membro ANTES de listar.
+	if _, ok := h.checkGroupMembership(w, r, groupID); !ok {
+		return // Bloqueia se não for membro
 	}
 
 	expenses, err := h.repo.ListGroupExpenses(groupID)
@@ -235,12 +254,18 @@ func (h *TravelGroupHandler) ListGroupExpensesHandler(w http.ResponseWriter, r *
 	json.NewEncoder(w).Encode(expenses)
 }
 
+// CreateDestinationHandler (MITIGADO)
 func (h *TravelGroupHandler) CreateDestinationHandler(w http.ResponseWriter, r *http.Request, groupIDStr string) {
 
 	groupID, err := strconv.Atoi(groupIDStr)
 	if err != nil {
 		http.Error(w, "ID do grupo inválido.", http.StatusBadRequest)
 		return
+	}
+
+	// MITIGAÇÃO A01 (Criação Arbitrária): Verifica se o usuário é membro ANTES de criar.
+	if _, ok := h.checkGroupMembership(w, r, groupID); !ok {
+		return // Bloqueia se não for membro
 	}
 
 	var req models.DestinationCreateRequest
@@ -254,7 +279,6 @@ func (h *TravelGroupHandler) CreateDestinationHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	// Criar o modelo para o repositório
 	destination := models.Destination{
 		TravelGroupID: groupID,
 		Name:          req.Name,
@@ -270,16 +294,21 @@ func (h *TravelGroupHandler) CreateDestinationHandler(w http.ResponseWriter, r *
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	// Retornamos o objeto criado (com o novo ID)
 	json.NewEncoder(w).Encode(destination)
 }
 
+// CreateVotingHandler (MITIGADO)
 func (h *TravelGroupHandler) CreateVotingHandler(w http.ResponseWriter, r *http.Request, groupIDStr string) {
 
 	groupID, err := strconv.Atoi(groupIDStr)
 	if err != nil {
 		http.Error(w, "ID do grupo inválido.", http.StatusBadRequest)
 		return
+	}
+
+	// MITIGAÇÃO A01 (Criação Arbitrária): Verifica se o usuário é membro ANTES de criar.
+	if _, ok := h.checkGroupMembership(w, r, groupID); !ok {
+		return // Bloqueia se não for membro
 	}
 
 	var req models.VotingCreateRequest
@@ -319,6 +348,13 @@ func (h *TravelGroupHandler) CreateExpenseHandler(w http.ResponseWriter, r *http
 		return
 	}
 
+	// 1. MITIGAÇÃO A01 (Check de Membro): Verifica se o usuário é membro do grupo.
+	// O userID é o ID do usuário AUTENTICADO (do token).
+	userID, ok := h.checkGroupMembership(w, r, groupID)
+	if !ok {
+		return // Bloqueia se não for membro (IDOR)
+	}
+
 	var req models.ExpenseCreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Requisição inválida (JSON).", http.StatusBadRequest)
@@ -326,20 +362,20 @@ func (h *TravelGroupHandler) CreateExpenseHandler(w http.ResponseWriter, r *http
 	}
 
 	// Validações básicas
-	if req.Description == "" || req.Amount <= 0 || req.PayerID <= 0 || len(req.ParticipantIDs) == 0 {
-		http.Error(w, "Descrição, valor (positivo), pagador e lista de participantes são obrigatórios.", http.StatusUnprocessableEntity)
+	if req.Description == "" || req.Amount <= 0 || len(req.ParticipantIDs) == 0 {
+		// Removemos a checagem de req.PayerID <= 0, pois não usaremos o PayerID do JSON.
+		http.Error(w, "Descrição, valor (positivo) e lista de participantes são obrigatórios.", http.StatusUnprocessableEntity)
 		return
 	}
 
-	// Nota de Validação: Idealmente, você deve checar se req.PayerID e todos os
-	// ParticipantIDs são membros válidos do grupo 'groupID'.
-
-	// Criar o modelo para o repositório
+	// 2. MITIGAÇÃO A01 (AÇÃO FORJADA):
+	// O PayerID da despesa AGORA usa o ID do usuário AUTENTICADO (userID)
+	// em vez de confiar no valor enviado no corpo da requisição (req.PayerID).
 	expense := models.Expense{
 		TravelGroupID:  groupID,
 		Description:    req.Description,
 		Amount:         req.Amount,
-		PayerID:        req.PayerID,
+		PayerID:        userID, // <-- CORRIGIDO! Usa o ID do token.
 		ParticipantIDs: req.ParticipantIDs,
 	}
 
@@ -351,6 +387,5 @@ func (h *TravelGroupHandler) CreateExpenseHandler(w http.ResponseWriter, r *http
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	// Retornamos o objeto criado (com o novo ID)
 	json.NewEncoder(w).Encode(expense)
 }
